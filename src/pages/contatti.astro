@@ -1,0 +1,162 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import ContactForm from '../components/ContactForm.astro';
+import { contacts } from '../config/site';
+
+const nextSteps = [
+  { title: 'Leggiamo la tua richiesta', text: 'Ogni messaggio viene letto da una persona, non da un sistema automatico.' },
+  { title: 'Ti ricontattiamo', text: 'Per conoscerci e approfondire la tua attività e i tuoi obiettivi.' },
+  { title: 'Definiamo i prossimi passi', text: 'Insieme, con chiarezza su cosa serve e cosa è incluso.' },
+];
+const hasDirectContacts = Boolean(contacts.email || contacts.phone || contacts.address || contacts.social.length);
+---
+
+<BaseLayout
+  title="Contatti"
+  description="Hai un progetto in mente? Raccontaci la tua idea: Studio TTS progetta siti web vetrina moderni per aziende e professionisti."
+>
+  <PageHero
+    eyebrow="Contatti"
+    lead="Che tu abbia bisogno di un nuovo sito o voglia migliorare la tua presenza online, raccontaci la tua idea."
+  >
+    Hai un progetto in mente? <em>Parliamone.</em>
+  </PageHero>
+
+  <section class="section theme-soft contact-section" aria-labelledby="form-title">
+    <div class="container contact-layout">
+      <div class="contact-form-wrap" data-reveal>
+        <h2 id="form-title" class="h3 form-title">Scrivici</h2>
+        <ContactForm />
+      </div>
+
+      <aside class="contact-aside" aria-label="Informazioni utili">
+        <div class="aside-block" data-reveal style="--reveal-delay:100">
+          <p class="eyebrow">Cosa succede dopo</p>
+          <ol role="list" class="next-steps">
+            {
+              nextSteps.map((s, i) => (
+                <li>
+                  <span class="step-num">0{i + 1}</span>
+                  <div>
+                    <h3 class="step-title">{s.title}</h3>
+                    <p class="muted">{s.text}</p>
+                  </div>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+
+        <div class="aside-block aside-contacts" data-reveal style="--reveal-delay:180">
+          <p class="eyebrow">Recapiti</p>
+          {
+            hasDirectContacts ? (
+              <ul role="list" class="contact-list">
+                {contacts.email && (
+                  <li>
+                    <span class="contact-label">Email</span>
+                    <a class="link-underline" href={`mailto:${contacts.email}`}>{contacts.email}</a>
+                  </li>
+                )}
+                {contacts.phone && (
+                  <li>
+                    <span class="contact-label">Telefono</span>
+                    <a class="link-underline" href={`tel:${contacts.phone.replace(/\s/g, '')}`}>{contacts.phone}</a>
+                  </li>
+                )}
+                {contacts.address && (
+                  <li>
+                    <span class="contact-label">Sede</span>
+                    <span>{contacts.address}</span>
+                  </li>
+                )}
+                {contacts.social.map((s) => (
+                  <li>
+                    <span class="contact-label">{s.label}</span>
+                    <a class="link-underline" href={s.href} target="_blank" rel="noopener">{s.href.replace(/^https?:\/\//, '')}</a>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p class="muted">I recapiti diretti di Studio TTS saranno pubblicati a breve.</p>
+            )
+          }
+        </div>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .contact-layout {
+    display: grid;
+    gap: clamp(3rem, 6vw, 5rem);
+  }
+  .contact-form-wrap {
+    padding: clamp(1.5rem, 4vw, 3rem);
+    background: var(--color-white);
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+  }
+  .form-title {
+    margin-bottom: 1.25rem;
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-weight: 700;
+  }
+  .contact-aside {
+    display: grid;
+    gap: 3rem;
+    align-content: start;
+  }
+  .aside-block {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .next-steps {
+    display: grid;
+    border-top: 1px solid var(--line);
+  }
+  .next-steps li {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: 0.5rem;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .step-num {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--fs-small);
+  }
+  .step-title {
+    font-size: 1.125rem;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+    margin-bottom: 0.25rem;
+  }
+  .contact-list {
+    display: grid;
+    gap: 1rem;
+  }
+  .contact-list li {
+    display: grid;
+    gap: 0.15rem;
+  }
+  .contact-label {
+    font-size: var(--fs-micro);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  @media (min-width: 1000px) {
+    .contact-layout {
+      grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    }
+    .contact-aside {
+      position: sticky;
+      top: calc(var(--header-h) + 2rem);
+      align-self: start;
+    }
+  }
+</style>

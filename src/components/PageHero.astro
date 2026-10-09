@@ -1,0 +1,48 @@
+---
+import BgGrid from './BgGrid.astro';
+import Eyebrow from './Eyebrow.astro';
+
+interface Props {
+  eyebrow: string;
+  number?: string;
+  lead?: string;
+}
+const { eyebrow, number, lead } = Astro.props;
+---
+
+<section class="page-hero theme-dark">
+  <BgGrid />
+  <div class="container page-hero-inner">
+    <div data-reveal><Eyebrow number={number} label={eyebrow} /></div>
+    <h1 class="page-hero-title" data-reveal style="--reveal-delay:80"><slot /></h1>
+    {lead && <p class="lead page-hero-lead" data-reveal style="--reveal-delay:160">{lead}</p>}
+    <slot name="after" />
+  </div>
+</section>
+
+<style>
+  .page-hero {
+    position: relative;
+    padding-top: calc(var(--header-h) + clamp(4rem, 10vw, 8rem));
+    padding-bottom: clamp(4rem, 9vw, 7rem);
+    overflow: hidden;
+  }
+  .page-hero-inner {
+    position: relative;
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+  }
+  .page-hero-title {
+    font-size: var(--fs-h1);
+    line-height: 0.92;
+    letter-spacing: -0.05em;
+    max-width: 15ch;
+  }
+  .page-hero-title :global(em) {
+    font-style: normal;
+    color: var(--color-acid);
+  }
+  .page-hero-lead {
+    max-width: 44ch;
+  }
+</style>

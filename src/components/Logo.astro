@@ -1,0 +1,33 @@
+---
+import { logo, brand } from '../config/site';
+
+interface Props {
+  variant?: 'mark' | 'full';
+  class?: string;
+  /** Altezza visualizzata in CSS (es. '2rem'). */
+  height?: string;
+  eager?: boolean;
+}
+const { variant = 'mark', class: className, height = '2rem', eager = false } = Astro.props;
+const asset = logo[variant];
+const alt = variant === 'full' ? `${brand.mark} ${brand.descriptor}` : brand.mark;
+---
+
+<picture class:list={['logo', className]} style={`--logo-h:${height}`}>
+  <source srcset={asset.src} type="image/webp" />
+  <img
+    src={asset.fallback}
+    width={asset.width}
+    height={asset.height}
+    alt={alt}
+    loading={eager ? 'eager' : 'lazy'}
+    decoding="async"
+  />
+</picture>
+
+<style>
+  .logo img {
+    height: var(--logo-h);
+    width: auto;
+  }
+</style>

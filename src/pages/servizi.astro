@@ -1,0 +1,260 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import CtaFinal from '../components/CtaFinal.astro';
+import { services } from '../content/services';
+---
+
+<BaseLayout
+  title="Servizi"
+  description="Siti web vetrina, web design, responsive design ed esperienza utente: cosa sono, a chi servono e cosa comprendono i servizi di Studio TTS."
+>
+  <PageHero
+    eyebrow="Servizi"
+    lead="Spieghiamo in modo semplice cosa facciamo, a chi può essere utile e cosa comprende ogni servizio. Anche se non hai mai realizzato un sito prima d’ora."
+  >
+    Diamo forma alla tua <em>presenza digitale</em>.
+  </PageHero>
+
+  <section class="section theme-light services-page" aria-label="Elenco dei servizi">
+    <div class="container services-layout">
+      <nav class="services-index" aria-label="Indice dei servizi">
+        <p class="eyebrow">Indice</p>
+        <ol role="list">
+          {
+            services.map((s) => (
+              <li>
+                <a href={`#${s.id}`}>
+                  <span class="idx-num">{s.number}</span>
+                  {s.title}
+                </a>
+              </li>
+            ))
+          }
+        </ol>
+        <a href="/contatti/" class="btn">Richiedi informazioni <span class="btn-arrow" aria-hidden="true">↗</span></a>
+      </nav>
+
+      <div class="services-list">
+        {
+          services.map((s) => (
+            <article class="service-block" id={s.id} aria-labelledby={`${s.id}-title`}>
+              <header class="service-block-head" data-reveal>
+                <span class="service-block-num">{s.number}</span>
+                <h2 class="h2" id={`${s.id}-title`}>
+                  {s.title}
+                </h2>
+              </header>
+
+              <div class="service-block-what" data-reveal>
+                <h3 class="block-label">Che cos’è</h3>
+                <p class="service-block-lead">{s.what}</p>
+              </div>
+
+              <div class="service-block-grid">
+                <div class="info-card" data-reveal>
+                  <h3 class="block-label">A chi è utile</h3>
+                  <ul role="list" class="dash-list">
+                    {s.forWho.map((item) => (
+                      <li>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div class="info-card" data-reveal style="--reveal-delay:100">
+                  <h3 class="block-label">Quali esigenze risolve</h3>
+                  <ul role="list" class="dash-list">
+                    {s.needs.map((item) => (
+                      <li>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div class="info-card info-card--dark" data-reveal style="--reveal-delay:200">
+                  <h3 class="block-label">Cosa comprende, indicativamente</h3>
+                  <ul role="list" class="check-list">
+                    {s.includes.map((item) => (
+                      <li>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </article>
+          ))
+        }
+
+        <aside class="services-note" data-reveal>
+          <p>
+            <strong>Ogni progetto è diverso.</strong> Il perimetro del lavoro viene definito insieme, dopo un primo
+            confronto sulle tue esigenze. Non promettiamo risultati che non dipendono solo da un sito: promettiamo
+            cura, chiarezza e trasparenza.
+          </p>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <CtaFinal
+    title="Hai bisogno di un preventivo?"
+    text="Raccontaci di cosa ti occupi e di cosa hai bisogno: ti aiutiamo a capire quale soluzione fa per te."
+    button="Richiedi un preventivo"
+  />
+</BaseLayout>
+
+<style>
+  .services-layout {
+    display: grid;
+    gap: 3rem;
+  }
+  .services-index {
+    display: none;
+  }
+  .services-list {
+    display: grid;
+    gap: clamp(5rem, 10vw, 9rem);
+  }
+  .service-block {
+    display: grid;
+    gap: clamp(2rem, 4vw, 3rem);
+    scroll-margin-top: calc(var(--header-h) + 2rem);
+  }
+  .service-block-head {
+    display: grid;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid var(--color-black);
+  }
+  .service-block-num {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--fs-small);
+    letter-spacing: 0.1em;
+  }
+  .service-block-num::after {
+    content: '';
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-left: 0.6rem;
+    border-radius: 50%;
+    background: var(--color-acid);
+    outline: 1px solid var(--color-black);
+  }
+  .block-label {
+    font-family: var(--font-display);
+    font-size: var(--fs-micro);
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    line-height: 1.4;
+    margin-bottom: 1rem;
+  }
+  .service-block-lead {
+    font-size: var(--fs-lead);
+    line-height: 1.55;
+    max-width: 52ch;
+  }
+  .service-block-grid {
+    display: grid;
+    gap: 1rem;
+  }
+  .info-card {
+    padding: clamp(1.25rem, 2.5vw, 2rem);
+    background: var(--color-soft);
+    border-radius: var(--radius);
+  }
+  .info-card--dark {
+    background: var(--color-black);
+    color: var(--color-white);
+  }
+  .info-card--dark .block-label {
+    color: var(--color-acid);
+  }
+  .dash-list,
+  .check-list {
+    display: grid;
+    gap: 0.75rem;
+  }
+  .dash-list li,
+  .check-list li {
+    position: relative;
+    padding-left: 1.5rem;
+    line-height: 1.5;
+  }
+  .dash-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.75em;
+    width: 0.75rem;
+    height: 1px;
+    background: currentColor;
+  }
+  .check-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.45em;
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: var(--color-acid);
+  }
+  .services-note {
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--color-acid);
+    font-size: var(--fs-lead);
+    line-height: 1.5;
+  }
+
+  @media (min-width: 760px) {
+    .service-block-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .info-card--dark {
+      grid-column: 1 / -1;
+    }
+    .info-card--dark .check-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 2rem;
+    }
+  }
+
+  @media (min-width: 1080px) {
+    .services-layout {
+      grid-template-columns: 17rem minmax(0, 1fr);
+      gap: clamp(3rem, 6vw, 6rem);
+    }
+    .services-index {
+      display: grid;
+      gap: 1.5rem;
+      align-content: start;
+      justify-items: start;
+      position: sticky;
+      top: calc(var(--header-h) + 2rem);
+      align-self: start;
+    }
+    .services-index ol {
+      display: grid;
+      width: 100%;
+      border-top: 1px solid var(--line);
+    }
+    .services-index li a {
+      display: flex;
+      gap: 0.75rem;
+      padding: 0.85rem 0;
+      border-bottom: 1px solid var(--line);
+      font-family: var(--font-display);
+      font-weight: 600;
+      transition:
+        padding 0.35s var(--ease-out),
+        color 0.25s;
+    }
+    .services-index li a:hover {
+      padding-left: 0.5rem;
+    }
+    .idx-num {
+      color: var(--color-muted-light);
+      font-weight: 500;
+    }
+  }
+</style>

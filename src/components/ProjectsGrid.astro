@@ -1,0 +1,290 @@
+---
+import { projects } from '../content/projects';
+
+interface Props {
+  /** Numero massimo di progetti (es. in Home). */
+  limit?: number;
+}
+const { limit } = Astro.props;
+const list = typeof limit === 'number' ? projects.slice(0, limit) : projects;
+---
+
+{
+  list.length > 0 ? (
+    <ul role="list" class="projects-grid">
+      {list.map((p, i) => (
+        <li data-reveal style={`--reveal-delay:${(i % 2) * 120}`}>
+          <article class="project-card">
+            <div class="project-media">
+              {p.image ? (
+                <img src={p.image.src} alt={p.image.alt} loading="lazy" decoding="async" width="1600" height="1000" />
+              ) : (
+                <div class="project-media-empty" aria-hidden="true" />
+              )}
+              {p.kind === 'concept' && <span class="project-badge">Concept</span>}
+            </div>
+            <div class="project-info">
+              <p class="project-sector">{p.sector}</p>
+              <h3 class="h3">{p.name}</h3>
+              <p class="project-desc">{p.description}</p>
+              {p.services.length > 0 && (
+                <ul role="list" class="project-tags" aria-label="Servizi svolti">
+                  {p.services.map((s) => (
+                    <li>{s}</li>
+                  ))}
+                </ul>
+              )}
+              {p.url && (
+                <a class="project-link link-line" href={p.url} target="_blank" rel="noopener">
+                  Visita il sito ↗<span class="visually-hidden"> (si apre in una nuova scheda)</span>
+                </a>
+              )}
+            </div>
+          </article>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <div class="projects-empty" data-reveal>
+      <div class="empty-slots" aria-hidden="true">
+        {['01', '02', '03'].map((n) => (
+          <div class="empty-slot">
+            <span class="empty-slot-bar">
+              <i />
+              <i />
+              <i />
+            </span>
+            <span class="empty-slot-num">{n}</span>
+            <span class="empty-slot-load" />
+          </div>
+        ))}
+      </div>
+      <div class="empty-copy">
+        <p class="empty-status">
+          <span class="empty-pulse" aria-hidden="true" />
+          Work in progress
+        </p>
+        <p class="empty-title">Nuovi progetti in arrivo.</p>
+        <p class="empty-text">
+          Il portfolio di Studio TTS è in preparazione. I progetti verranno pubblicati qui non appena saranno
+          online e presentabili.
+        </p>
+      </div>
+    </div>
+  )
+}
+
+<style>
+  .projects-grid {
+    display: grid;
+    gap: clamp(2.5rem, 5vw, 4rem) clamp(1rem, 2vw, 2rem);
+  }
+  .project-card {
+    display: grid;
+    gap: 1.25rem;
+  }
+  .project-media {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border-radius: var(--radius);
+    background: var(--color-black);
+  }
+  .project-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.9s var(--ease-out);
+  }
+  .project-card:hover .project-media img {
+    transform: scale(1.03);
+  }
+  .project-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    background: var(--color-acid);
+    color: var(--color-black);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--fs-micro);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .project-sector {
+    font-family: var(--font-display);
+    font-size: var(--fs-micro);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .project-info {
+    display: grid;
+    gap: 0.6rem;
+    justify-items: start;
+  }
+  .project-desc {
+    color: var(--muted);
+    max-width: 50ch;
+  }
+  .project-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .project-tags li {
+    padding: 0.2rem 0.65rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: var(--fs-small);
+  }
+  .project-link {
+    font-family: var(--font-display);
+    font-weight: 600;
+  }
+  @media (min-width: 900px) {
+    .projects-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .projects-grid > li:nth-child(even) {
+      margin-top: 6rem;
+    }
+  }
+
+  /* Stato vuoto */
+  .projects-empty {
+    display: grid;
+    gap: 2.5rem;
+    padding: clamp(1.5rem, 4vw, 3rem);
+    border: 1px dashed var(--line);
+    border-radius: var(--radius);
+  }
+  .empty-slots {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(0.5rem, 1.5vw, 1rem);
+  }
+  .empty-slot {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent 0 10px,
+      color-mix(in srgb, var(--fg) 4%, transparent) 10px 11px
+    );
+  }
+  .empty-slot-bar {
+    display: flex;
+    gap: 4px;
+    padding: 0.6rem;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+  }
+  .empty-slot-bar i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    border: 1px solid var(--muted);
+  }
+  .empty-slot-num {
+    position: absolute;
+    left: 0.75rem;
+    bottom: 0.6rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(1.5rem, 5vw, 3.5rem);
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: color-mix(in srgb, var(--fg) 18%, transparent);
+  }
+  .empty-slot-load {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 2.1rem;
+    height: 2px;
+    background: var(--color-acid);
+    transform-origin: left;
+    transform: scaleX(0.35);
+  }
+  .empty-slot:nth-child(2) .empty-slot-load {
+    transform: scaleX(0.6);
+  }
+  .empty-slot:nth-child(3) .empty-slot-load {
+    transform: scaleX(0.15);
+  }
+  .empty-copy {
+    display: grid;
+    gap: 0.9rem;
+    align-content: center;
+  }
+  .empty-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-display);
+    font-size: var(--fs-micro);
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .empty-pulse {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--color-acid);
+    box-shadow: 0 0 0 0 rgb(184 255 59 / 0.6);
+  }
+  .empty-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(2rem, 4.2vw, 3.5rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+  .empty-text {
+    color: var(--muted);
+    max-width: 42ch;
+  }
+  @media (min-width: 900px) {
+    .projects-empty {
+      grid-template-columns: 1.4fr 1fr;
+      gap: 3rem;
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .empty-pulse {
+      animation: pulse 2s var(--ease-out) infinite;
+    }
+    .empty-slot-load {
+      animation: load 4.5s var(--ease-in-out) infinite alternate;
+    }
+    .empty-slot:nth-child(2) .empty-slot-load {
+      animation-delay: -1.5s;
+    }
+    .empty-slot:nth-child(3) .empty-slot-load {
+      animation-delay: -3s;
+    }
+  }
+  @keyframes pulse {
+    70% {
+      box-shadow: 0 0 0 10px rgb(184 255 59 / 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgb(184 255 59 / 0);
+    }
+  }
+  @keyframes load {
+    from {
+      transform: scaleX(0.1);
+    }
+    to {
+      transform: scaleX(0.9);
+    }
+  }
+</style>

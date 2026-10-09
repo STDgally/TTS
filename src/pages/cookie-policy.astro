@@ -1,0 +1,46 @@
+---
+import LegalLayout from '../layouts/LegalLayout.astro';
+import { legal } from '../config/site';
+---
+
+<LegalLayout title="Cookie Policy" description="Informazioni sull’uso dei cookie e di tecnologie simili sul sito di Studio TTS.">
+  <h2>1. Cosa sono i cookie</h2>
+  <p>
+    I cookie sono piccoli file di testo che i siti visitati salvano nel browser dell’utente, per poi rileggerli alle
+    visite successive. Tecnologie simili (come il local storage) funzionano in modo analogo.
+  </p>
+
+  <h2>2. Cookie utilizzati da questo sito</h2>
+  <p>
+    Nella sua configurazione attuale, il sito <strong>non utilizza cookie di profilazione né strumenti di analisi o
+    tracciamento</strong>. I caratteri tipografici sono ospitati direttamente sul sito, senza richieste a servizi di
+    terze parti.
+  </p>
+  <p>
+    <span class="placeholder">[Verificare e aggiornare questa sezione prima della pubblicazione, includendo gli
+    eventuali cookie tecnici impostati dal fornitore di hosting o dal servizio del modulo contatti.]</span>
+  </p>
+
+  <h2>3. Strumenti di terze parti</h2>
+  <p>
+    Se in futuro verranno introdotti strumenti di statistica, mappe, video incorporati o pixel di terze parti, questa
+    pagina sarà aggiornata e, quando richiesto dalla normativa, verrà richiesto il consenso preventivo tramite un
+    apposito banner.
+  </p>
+
+  <h2>4. Gestione dei cookie dal browser</h2>
+  <p>
+    Puoi in ogni momento visualizzare, bloccare o eliminare i cookie dalle impostazioni del tuo browser. La
+    disattivazione dei cookie tecnici potrebbe compromettere alcune funzionalità del sito.
+  </p>
+
+  <h2>5. Titolare e contatti</h2>
+  <p>
+    <span class="placeholder">{legal.companyName ?? '[Ragione sociale / nome del titolare]'}</span> —
+    <span class="placeholder">{legal.privacyContactEmail ?? '[email di contatto]'}</span>. Per maggiori informazioni
+    sul trattamento dei dati consulta la <a href="/privacy-policy/">Privacy Policy</a>.
+  </p>
+
+  <h2>6. Aggiornamenti</h2>
+  <p>Ultimo aggiornamento: <span class="placeholder">[data]</span>.</p>
+</LegalLayout>

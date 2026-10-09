@@ -1,0 +1,74 @@
+---
+import { cta } from '../config/site';
+
+interface Props {
+  title?: string;
+  text?: string;
+  button?: string;
+}
+const {
+  title = 'Il tuo prossimo sito parte da qui.',
+  text = 'Raccontaci la tua attività. Scopriamo insieme come valorizzarla online.',
+  button = 'Iniziamo a parlarne',
+} = Astro.props;
+---
+
+<section class="section theme-dark cta-final" aria-labelledby="cta-final-title">
+  <div class="cta-dot" aria-hidden="true"></div>
+  <div class="container cta-inner">
+    <h2 id="cta-final-title" class="cta-title" data-reveal>{title}</h2>
+    <div class="cta-foot" data-reveal style="--reveal-delay:120">
+      <p class="lead">{text}</p>
+      <a href={cta.primary.href} class="btn btn--lg">
+        {button} <span class="btn-arrow" aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta-final {
+    overflow: hidden;
+    padding-block: clamp(6rem, 14vw, 12rem);
+  }
+  .cta-dot {
+    position: absolute;
+    width: clamp(16rem, 42vw, 40rem);
+    aspect-ratio: 1;
+    right: calc(clamp(16rem, 42vw, 40rem) * -0.42);
+    bottom: calc(clamp(16rem, 42vw, 40rem) * -0.42);
+    border-radius: 50%;
+    background: var(--color-acid);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .cta-dot {
+      transition: transform 1.4s var(--ease-out);
+    }
+    .cta-final:hover .cta-dot {
+      transform: scale(1.06);
+    }
+  }
+  .cta-inner {
+    position: relative;
+  }
+  .cta-title {
+    font-size: var(--fs-mega);
+    text-transform: uppercase;
+    line-height: 0.88;
+    letter-spacing: -0.055em;
+    max-width: 11ch;
+  }
+  .cta-foot {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    display: grid;
+    gap: 2rem;
+    justify-items: start;
+  }
+  @media (min-width: 900px) {
+    .cta-foot {
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      max-width: 62rem;
+    }
+  }
+</style>

@@ -1,0 +1,284 @@
+---
+import { contactForm } from '../config/site';
+
+const endpoint = contactForm.endpoint;
+---
+
+<form
+  class="cform"
+  method="post"
+  action={endpoint ?? undefined}
+  data-contact-form
+  data-endpoint={endpoint ?? ''}
+  aria-describedby="cform-required-note"
+>
+  <p id="cform-required-note" class="cform-note">I campi contrassegnati con <span aria-hidden="true">*</span><span class="visually-hidden">asterisco</span> sono obbligatori.</p>
+
+  <div class="cform-grid">
+    <div class="field">
+      <label for="cf-name">Nome e cognome <span aria-hidden="true">*</span></label>
+      <input id="cf-name" name="nome" type="text" autocomplete="name" required maxlength="120" aria-describedby="cf-name-err" />
+      <p class="field-error" id="cf-name-err" data-error-for="cf-name"></p>
+    </div>
+
+    <div class="field">
+      <label for="cf-company">Azienda o attività</label>
+      <input id="cf-company" name="azienda" type="text" autocomplete="organization" maxlength="160" />
+    </div>
+
+    <div class="field">
+      <label for="cf-email">Email <span aria-hidden="true">*</span></label>
+      <input id="cf-email" name="email" type="email" autocomplete="email" inputmode="email" required maxlength="160" aria-describedby="cf-email-err" />
+      <p class="field-error" id="cf-email-err" data-error-for="cf-email"></p>
+    </div>
+
+    <div class="field">
+      <label for="cf-type">Tipologia di progetto <span aria-hidden="true">*</span></label>
+      <div class="select-wrap">
+        <select id="cf-type" name="tipologia" required aria-describedby="cf-type-err">
+          <option value="">Seleziona un’opzione</option>
+          {contactForm.projectTypes.map((t) => <option value={t}>{t}</option>)}
+        </select>
+      </div>
+      <p class="field-error" id="cf-type-err" data-error-for="cf-type"></p>
+    </div>
+
+    <div class="field field--full">
+      <label for="cf-message">Messaggio <span aria-hidden="true">*</span></label>
+      <textarea
+        id="cf-message"
+        name="messaggio"
+        rows="6"
+        required
+        minlength="20"
+        maxlength="4000"
+        aria-describedby="cf-message-hint cf-message-err"
+        placeholder="Di cosa si occupa la tua attività? Cosa vorresti ottenere con il sito?"></textarea>
+      <p class="field-hint" id="cf-message-hint">Almeno 20 caratteri.</p>
+      <p class="field-error" id="cf-message-err" data-error-for="cf-message"></p>
+    </div>
+
+    <!-- Campo trappola anti-spam: deve restare vuoto -->
+    <div class="hp" aria-hidden="true">
+      <label for="cf-website">Lascia vuoto questo campo</label>
+      <input id="cf-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+    </div>
+
+    <div class="field field--full field--check">
+      <input id="cf-privacy" name="privacy" type="checkbox" value="accettato" required aria-describedby="cf-privacy-err" />
+      <label for="cf-privacy">
+        Ho letto l’<a href="/privacy-policy/" class="link-underline" target="_blank">informativa privacy<span class="visually-hidden"> (si apre in una nuova scheda)</span></a> e acconsento al trattamento dei dati per ricevere una risposta alla mia richiesta. <span aria-hidden="true">*</span>
+      </label>
+      <p class="field-error" id="cf-privacy-err" data-error-for="cf-privacy"></p>
+    </div>
+  </div>
+
+  <div class="cform-actions">
+    <button type="submit" class="btn btn--lg" data-submit>
+      <span data-submit-label>Invia la richiesta</span> <span class="btn-arrow" aria-hidden="true">↗</span>
+    </button>
+  </div>
+
+  <div class="cform-status" role="status" aria-live="polite" data-status hidden></div>
+</form>
+
+<style>
+  .cform {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .cform-note {
+    font-size: var(--fs-small);
+    color: var(--muted);
+  }
+  .cform-grid {
+    display: grid;
+    gap: 1.5rem 1.25rem;
+  }
+  .field {
+    display: grid;
+    gap: 0.5rem;
+    align-content: start;
+  }
+  .field > label {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+  .field input[type='text'],
+  .field input[type='email'],
+  .field select,
+  .field textarea {
+    width: 100%;
+    min-height: 3.25rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid rgb(17 17 17 / 0.28);
+    border-radius: var(--radius);
+    background: var(--color-white);
+    color: var(--color-black);
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
+  }
+  .field textarea {
+    resize: vertical;
+    min-height: 9rem;
+  }
+  .field ::placeholder {
+    color: #8a8a8a;
+  }
+  .field input:hover,
+  .field select:hover,
+  .field textarea:hover {
+    border-color: var(--color-black);
+  }
+  .field input:focus-visible,
+  .field select:focus-visible,
+  .field textarea:focus-visible {
+    outline: none;
+    border-color: var(--color-black);
+    box-shadow: 0 0 0 3px var(--color-acid);
+  }
+  .field [aria-invalid='true'] {
+    border-color: #c4241c;
+  }
+  .select-wrap {
+    position: relative;
+  }
+  .select-wrap::after {
+    content: '';
+    position: absolute;
+    right: 1.1rem;
+    top: 50%;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-70%) rotate(45deg);
+    pointer-events: none;
+  }
+  .field select {
+    appearance: none;
+    padding-right: 2.75rem;
+  }
+  .field-hint {
+    font-size: var(--fs-small);
+    color: var(--muted);
+  }
+  .field-error {
+    font-size: var(--fs-small);
+    font-weight: 500;
+    color: #b0201a;
+  }
+  .field-error:empty {
+    display: none;
+  }
+  .field-error::before {
+    content: '! ';
+    font-weight: 700;
+  }
+  .field--check {
+    grid-template-columns: auto 1fr;
+    column-gap: 0.85rem;
+    align-items: start;
+  }
+  .field--check > label {
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+  .field--check .field-error {
+    grid-column: 1 / -1;
+  }
+  .field--check input {
+    appearance: none;
+    width: 1.375rem;
+    height: 1.375rem;
+    margin-top: 0.1rem;
+    border: 1.5px solid var(--color-black);
+    border-radius: 3px;
+    background: var(--color-white);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+  .field--check input::after {
+    content: '';
+    width: 0.4rem;
+    height: 0.7rem;
+    border-right: 2px solid var(--color-black);
+    border-bottom: 2px solid var(--color-black);
+    transform: translateY(-1px) rotate(45deg) scale(0);
+    transition: transform 0.2s var(--ease-out);
+  }
+  .field--check input:checked {
+    background: var(--color-acid);
+  }
+  .field--check input:checked::after {
+    transform: translateY(-1px) rotate(45deg) scale(1);
+  }
+  .field--check input:focus-visible {
+    outline: 2px solid var(--color-black);
+    outline-offset: 3px;
+  }
+  .field--check input[aria-invalid='true'] {
+    border-color: #c4241c;
+  }
+  .hp {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .cform-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+  }
+  .btn[aria-busy='true'] {
+    opacity: 0.7;
+    cursor: progress;
+  }
+  .cform-status {
+    padding: 1.25rem 1.5rem;
+    border-radius: var(--radius);
+    border-left: 4px solid;
+    line-height: 1.5;
+  }
+  .cform-status[data-kind='success'] {
+    background: var(--color-black);
+    color: var(--color-white);
+    border-color: var(--color-acid);
+  }
+  .cform-status[data-kind='error'] {
+    background: #fdecea;
+    color: #6b100b;
+    border-color: #c4241c;
+  }
+  .cform-status[data-kind='warning'] {
+    background: #fff7d6;
+    color: #4a3b00;
+    border-color: #d1a300;
+  }
+  .cform-status :global(strong) {
+    display: block;
+    font-family: var(--font-display);
+    margin-bottom: 0.25rem;
+  }
+  @media (min-width: 700px) {
+    .cform-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .field--full {
+      grid-column: 1 / -1;
+    }
+  }
+</style>
+
+<script>
+  import { initContactForm } from '../scripts/contact-form';
+  document.querySelectorAll<HTMLFormElement>('[data-contact-form]').forEach(initContactForm);
+</script>

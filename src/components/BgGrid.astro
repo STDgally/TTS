@@ -1,0 +1,18 @@
+---
+// Linee verticali della griglia a 12 colonne, animate con discrezione all'ingresso.
+---
+
+<div class="bg-grid" aria-hidden="true">
+  {Array.from({ length: 12 }, (_, i) => <span style={`--i:${i}`} class={i >= 6 ? 'bg-grid-wide' : undefined} />)}
+</div>
+
+<style>
+  @media (max-width: 899px) {
+    .bg-grid-wide {
+      display: none;
+    }
+    span:nth-child(6) {
+      border-right: 1px solid var(--line);
+    }
+  }
+</style>

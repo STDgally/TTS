@@ -1,0 +1,74 @@
+---
+interface Props {
+  items: string[];
+}
+const { items } = Astro.props;
+const row = [...items, ...items];
+---
+
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    {
+      [0, 1].map(() => (
+        <ul class="marquee-row">
+          {row.map((item) => (
+            <li>
+              {item}
+              <span class="marquee-dot" />
+            </li>
+          ))}
+        </ul>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .marquee {
+    overflow: hidden;
+    border-block: 1px solid var(--color-line-dark);
+    background: var(--color-black);
+    color: var(--color-white);
+    padding-block: 1.1rem;
+  }
+  .marquee-track {
+    display: flex;
+    width: max-content;
+  }
+  .marquee-row {
+    display: flex;
+    list-style: none;
+    padding: 0;
+  }
+  .marquee-row li {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding-right: 2rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.25rem, 2.4vw, 2rem);
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .marquee-dot {
+    width: 0.5em;
+    height: 0.5em;
+    border-radius: 50%;
+    background: var(--color-acid);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .marquee-track {
+      animation: marquee 38s linear infinite;
+    }
+    .marquee:hover .marquee-track {
+      animation-play-state: paused;
+    }
+  }
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+</style>

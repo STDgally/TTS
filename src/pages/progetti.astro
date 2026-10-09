@@ -1,0 +1,113 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import ProjectsGrid from '../components/ProjectsGrid.astro';
+import CtaFinal from '../components/CtaFinal.astro';
+import { projects } from '../content/projects';
+
+const fields = [
+  { label: 'Progetto', text: 'Il nome e il contesto del lavoro.' },
+  { label: 'Settore', text: 'Il tipo di attività per cui è stato realizzato.' },
+  { label: 'Servizi svolti', text: 'Cosa abbiamo fatto, in concreto.' },
+  { label: 'Immagini', text: 'Il sito come appare su desktop e smartphone.' },
+  { label: 'Descrizione', text: 'Le scelte di progetto e il perché.' },
+  { label: 'Link', text: 'Il sito pubblicato, quando disponibile.' },
+];
+---
+
+<BaseLayout
+  title="Progetti"
+  description="Il portfolio di Studio TTS: siti web vetrina e progetti di web design per aziende e professionisti."
+>
+  <PageHero
+    eyebrow="Progetti"
+    number="04"
+    lead="Qui raccoglieremo i siti progettati e sviluppati da Studio TTS, con le informazioni essenziali su ogni lavoro."
+  >
+    Il nostro lavoro, <em>in pratica</em>.
+  </PageHero>
+
+  <section class="section theme-soft" aria-labelledby="portfolio-title">
+    <div class="container">
+      <h2 id="portfolio-title" class="visually-hidden">Portfolio</h2>
+      <ProjectsGrid />
+    </div>
+  </section>
+
+  {
+    projects.length === 0 && (
+      <section class="section theme-light" aria-labelledby="fields-title">
+        <div class="container">
+          <div class="grid-12 fields-head">
+            <p class="eyebrow fields-eyebrow" data-reveal>Cosa troverai</p>
+            <h2 id="fields-title" class="h2 fields-title" data-reveal>
+              Ogni progetto, raccontato con chiarezza.
+            </h2>
+          </div>
+          <ul role="list" class="fields">
+            {fields.map((f, i) => (
+              <li data-reveal style={`--reveal-delay:${(i % 3) * 90}`}>
+                <span class="field-num">0{i + 1}</span>
+                <h3 class="h3">{f.label}</h3>
+                <p class="muted">{f.text}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  <CtaFinal
+    title="Il prossimo progetto può essere il tuo."
+    text="Raccontaci la tua attività: valutiamo insieme come portarla online."
+  />
+</BaseLayout>
+
+<style>
+  .fields-head {
+    row-gap: 1.5rem;
+  }
+  .fields-eyebrow,
+  .fields-title {
+    grid-column: 1 / -1;
+  }
+  .fields-title {
+    max-width: 16ch;
+  }
+  .fields {
+    margin-top: clamp(3rem, 6vw, 5rem);
+    display: grid;
+    gap: 0 2rem;
+    border-top: 1px solid var(--line);
+  }
+  .fields li {
+    display: grid;
+    gap: 0.5rem;
+    padding: 1.75rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .field-num {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--fs-small);
+    letter-spacing: 0.1em;
+  }
+  @media (min-width: 700px) {
+    .fields {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 900px) {
+    .fields-eyebrow {
+      grid-column: 1 / span 3;
+      padding-top: 0.6em;
+    }
+    .fields-title {
+      grid-column: 4 / -1;
+    }
+    .fields {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

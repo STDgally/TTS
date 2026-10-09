@@ -1,0 +1,296 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import SectionHead from '../components/SectionHead.astro';
+import FoundersGrid from '../components/FoundersGrid.astro';
+import CtaFinal from '../components/CtaFinal.astro';
+
+const values = [
+  { title: 'Innovazione', text: 'Linguaggi visivi e soluzioni attuali, scelte con criterio.' },
+  { title: 'Creatività', text: 'Idee che nascono dalla tua attività, non da un catalogo.' },
+  { title: 'Chiarezza', text: 'Nei siti che progettiamo e nel modo in cui lavoriamo con te.' },
+  { title: 'Professionalità', text: 'Metodo, puntualità nelle comunicazioni, rispetto degli accordi.' },
+  { title: 'Attenzione alle persone', text: 'Chi ci affida un progetto e chi visiterà il sito.' },
+  { title: 'Cura dei dettagli', text: 'Perché la qualità si vede soprattutto nelle piccole cose.' },
+];
+
+const approach = [
+  {
+    title: 'Umano',
+    text: 'Parliamo la tua lingua, non quella dei tecnici. Ti spieghiamo le scelte e ascoltiamo le tue idee.',
+  },
+  {
+    title: 'Collaborativo',
+    text: 'Il sito si costruisce insieme: tu conosci la tua attività, noi sappiamo come raccontarla online.',
+  },
+  {
+    title: 'Trasparente',
+    text: 'Fasi chiare, cosa è incluso e cosa no, aspettative realistiche. Fin dal primo incontro.',
+  },
+];
+---
+
+<BaseLayout
+  title="Chi siamo"
+  description="Studio TTS è una web agency fondata da Alessandro Galli e Halil Korkmaz. TTS significa Time To Shine: dare alla tua attività la presenza online che merita."
+>
+  <PageHero eyebrow="Chi siamo">
+    Siamo Studio TTS. E crediamo nelle idee che <em>meritano di brillare</em>.
+  </PageHero>
+
+  <!-- Storia e visione -->
+  <section class="section theme-soft" aria-labelledby="story-title">
+    <div class="container">
+      <SectionHead number="01" eyebrow="La nostra visione" id="story-title">
+        Un sito web dovrebbe somigliare a chi lo possiede.
+      </SectionHead>
+      <div class="grid-12 story-body">
+        <div class="story-text prose" data-reveal style="--reveal-delay:120">
+          <p>
+            Studio TTS nasce dall’iniziativa di Alessandro Galli e Halil Korkmaz, con l’obiettivo di creare una web
+            agency che unisca design contemporaneo, attenzione alle persone e soluzioni digitali concrete.
+          </p>
+          <p>
+            Lavoriamo con piccole e medie imprese, professionisti, studi e attività locali che vogliono una presenza
+            online moderna e chiara. Per molti di loro il sito è il primo contatto con un nuovo cliente: per questo
+            deve essere curato, comprensibile e coerente con ciò che l’attività è davvero.
+          </p>
+          <p>
+            Il nostro lavoro parte sempre da una conversazione. Prima di parlare di colori o di pagine, vogliamo
+            capire chi sei, a chi ti rivolgi e cosa ti rende diverso.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Time To Shine -->
+  <section class="section theme-dark tts-name" aria-labelledby="name-title">
+    <div class="container">
+      <p class="eyebrow" data-reveal><span class="eyebrow-num">02</span><span class="eyebrow-sep" aria-hidden="true">/</span>Il nome</p>
+      <h2 id="name-title" class="visually-hidden">Il significato di TTS: Time To Shine</h2>
+      <p class="tts-words" aria-hidden="true" data-reveal style="--reveal-delay:80">
+        <span><b>T</b>ime</span>
+        <span><b>T</b>o</span>
+        <span><b>S</b>hine<i>.</i></span>
+      </p>
+      <p class="tts-explain" data-reveal style="--reveal-delay:160">
+        <strong>TTS significa Time To Shine.</strong> Per noi è un invito a dare alla tua attività la presenza online
+        che merita.
+      </p>
+    </div>
+  </section>
+
+  <!-- Valori -->
+  <section class="section theme-light" aria-labelledby="values-title">
+    <div class="container">
+      <SectionHead number="03" eyebrow="Valori" id="values-title">Ciò in cui crediamo.</SectionHead>
+      <ul role="list" class="values">
+        {
+          values.map((v, i) => (
+            <li class="value" data-reveal style={`--reveal-delay:${(i % 3) * 90}`}>
+              <span class="value-num">0{i + 1}</span>
+              <h3 class="h3">{v.title}</h3>
+              <p class="muted">{v.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- Approccio -->
+  <section class="section theme-acid" aria-labelledby="approach-title">
+    <div class="container">
+      <div class="grid-12 approach-head">
+        <p class="eyebrow approach-eyebrow" data-reveal>
+          <span class="eyebrow-num">04</span><span class="eyebrow-sep" aria-hidden="true">/</span>Il nostro approccio
+        </p>
+        <h2 id="approach-title" class="h2 approach-title" data-reveal>Umano. Collaborativo. Trasparente.</h2>
+      </div>
+      <ol role="list" class="approach">
+        {
+          approach.map((a, i) => (
+            <li data-reveal style={`--reveal-delay:${i * 110}`}>
+              <h3 class="h3">{a.title}</h3>
+              <p>{a.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- Fondatori -->
+  <section class="section theme-light" aria-labelledby="founders-title">
+    <div class="container">
+      <SectionHead number="05" eyebrow="Le persone dietro TTS" id="founders-title">
+        Due fondatori. Un’idea chiara.
+      </SectionHead>
+      <div class="founders-wrap">
+        <p class="founders-quote" data-reveal>
+          Crediamo che il modo migliore per realizzare un buon sito sia partire da una buona conversazione.
+        </p>
+        <FoundersGrid />
+      </div>
+    </div>
+  </section>
+
+  <CtaFinal title="Parliamo della tua attività." button="Parliamo del tuo progetto" />
+</BaseLayout>
+
+<style>
+  .story-body {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+  }
+  .story-text {
+    grid-column: 1 / -1;
+    font-size: var(--fs-lead);
+    line-height: 1.6;
+  }
+  .story-text p:not(:first-child) {
+    color: var(--color-muted-light);
+  }
+  @media (min-width: 900px) {
+    .story-text {
+      grid-column: 4 / span 7;
+    }
+  }
+
+  .tts-name {
+    overflow: hidden;
+  }
+  .tts-words {
+    margin-top: 2.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 0.25em;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(3.5rem, 13vw, 12rem);
+    line-height: 0.9;
+    letter-spacing: -0.055em;
+    color: rgb(255 255 255 / 0.18);
+  }
+  .tts-words b {
+    color: var(--color-acid);
+  }
+  .tts-words i {
+    font-style: normal;
+    color: var(--color-acid);
+  }
+  .tts-explain {
+    margin-top: clamp(2rem, 5vw, 3.5rem);
+    max-width: 40ch;
+    margin-left: auto;
+    font-size: var(--fs-lead);
+    line-height: 1.5;
+    color: var(--color-muted-dark);
+  }
+  .tts-explain strong {
+    color: var(--color-white);
+    font-weight: 600;
+  }
+
+  .values {
+    margin-top: clamp(3rem, 6vw, 5rem);
+    display: grid;
+    border-top: 1px solid var(--line);
+  }
+  .value {
+    display: grid;
+    gap: 0.6rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .value-num {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--fs-small);
+    letter-spacing: 0.1em;
+  }
+  .value-num::before {
+    content: '';
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-right: 0.6rem;
+    border-radius: 50%;
+    background: var(--color-acid);
+    outline: 1px solid var(--color-black);
+  }
+  @media (min-width: 700px) {
+    .values {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 2rem;
+    }
+  }
+  @media (min-width: 1000px) {
+    .values {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .approach-head {
+    row-gap: 1.5rem;
+  }
+  .approach-eyebrow,
+  .approach-title {
+    grid-column: 1 / -1;
+  }
+  .approach {
+    margin-top: clamp(3rem, 6vw, 5rem);
+    display: grid;
+    gap: 2rem;
+    counter-reset: step;
+  }
+  .approach li {
+    display: grid;
+    gap: 0.75rem;
+    padding-top: 1.25rem;
+    border-top: 2px solid var(--color-black);
+  }
+  .approach p {
+    color: var(--muted);
+    max-width: 34ch;
+  }
+  @media (min-width: 900px) {
+    .approach-eyebrow {
+      grid-column: 1 / span 3;
+      padding-top: 0.6em;
+    }
+    .approach-title {
+      grid-column: 4 / -1;
+    }
+    .approach {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .founders-wrap {
+    margin-top: clamp(3rem, 6vw, 5rem);
+    display: grid;
+    gap: 3rem;
+  }
+  .founders-quote {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.375rem, 2.4vw, 2rem);
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    padding-left: 1.25rem;
+    border-left: 3px solid var(--color-acid);
+    max-width: 30ch;
+  }
+  @media (min-width: 1000px) {
+    .founders-wrap {
+      grid-template-columns: 1fr 2fr;
+      gap: 4rem;
+    }
+    .founders-quote {
+      position: sticky;
+      top: calc(var(--header-h) + 2rem);
+      align-self: start;
+    }
+  }
+</style>

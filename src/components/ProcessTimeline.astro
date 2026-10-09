@@ -1,0 +1,119 @@
+---
+import { processSteps } from '../content/process';
+---
+
+<div class="timeline" data-observe>
+  <span class="timeline-track" aria-hidden="true"><span class="timeline-progress"></span></span>
+  <ol role="list" class="timeline-list">
+  {
+    processSteps.map((step, i) => (
+      <li class="timeline-step" data-reveal style={`--reveal-delay:${i * 140}`}>
+        <span class="timeline-node" aria-hidden="true" />
+        <span class="timeline-num">{step.number}.</span>
+        <h3 class="h3 timeline-title">{step.title}</h3>
+        <p class="timeline-text">{step.text}</p>
+      </li>
+    ))
+  }
+  </ol>
+</div>
+
+<style>
+  .timeline {
+    position: relative;
+    padding-left: 2.5rem;
+  }
+  .timeline-list {
+    display: grid;
+    gap: 3rem;
+  }
+  .timeline-track {
+    position: absolute;
+    left: 0.4375rem;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    width: 1px;
+    background: var(--line);
+  }
+  .timeline-progress {
+    position: absolute;
+    inset: 0;
+    background: var(--color-acid);
+    transform-origin: top;
+  }
+  .timeline-step {
+    position: relative;
+    display: grid;
+    gap: 0.75rem;
+    align-content: start;
+  }
+  .timeline-node {
+    position: absolute;
+    left: -2.5rem;
+    top: 0.3rem;
+    width: 0.9375rem;
+    height: 0.9375rem;
+    border-radius: 50%;
+    border: 1px solid var(--color-acid);
+    background: var(--bg);
+  }
+  .timeline-step:last-child .timeline-node {
+    background: var(--color-acid);
+  }
+  .timeline-num {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--fs-small);
+    color: var(--color-acid);
+    letter-spacing: 0.1em;
+  }
+  .timeline-title {
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-weight: 700;
+  }
+  .timeline-text {
+    color: var(--muted);
+    max-width: 30ch;
+  }
+
+  @media (min-width: 900px) {
+    .timeline {
+      padding-left: 0;
+      padding-top: 3rem;
+    }
+    .timeline-list {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 2rem;
+    }
+    .timeline-track {
+      left: 0;
+      right: 0;
+      top: 0.4375rem;
+      bottom: auto;
+      width: auto;
+      height: 1px;
+    }
+    .timeline-progress {
+      transform-origin: left;
+    }
+    .timeline-node {
+      left: 0;
+      top: -3rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .timeline-progress {
+      transform: scaleY(0);
+      transition: transform 2s var(--ease-in-out) 0.2s;
+    }
+    @media (min-width: 900px) {
+      :global(.js) .timeline-progress {
+        transform: scaleX(0);
+      }
+    }
+    :global(.js) .timeline:global(.is-visible) .timeline-progress {
+      transform: none;
+    }
+  }
+</style>

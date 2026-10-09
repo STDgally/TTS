@@ -1,0 +1,128 @@
+---
+import { founders } from '../content/founders';
+---
+
+<ul role="list" class="founders">
+  {
+    founders.map((f, i) => (
+      <li data-reveal style={`--reveal-delay:${i * 140}`}>
+        <article class="founder">
+          <div class="founder-media">
+            {f.photo ? (
+              <img src={f.photo} alt={`Ritratto di ${f.name}`} loading="lazy" decoding="async" width="800" height="1000" />
+            ) : (
+              <div class="founder-placeholder" aria-hidden="true">
+                <span class="founder-initials">{f.initials}</span>
+                <span class="founder-frame" />
+                <span class="founder-label">Foto in arrivo</span>
+              </div>
+            )}
+          </div>
+          <div class="founder-info">
+            <h3 class="h3">{f.name}</h3>
+            <p class="founder-role">{f.role}</p>
+          </div>
+        </article>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .founders {
+    display: grid;
+    gap: clamp(2rem, 4vw, 3rem) clamp(1rem, 2vw, 2rem);
+  }
+  .founder {
+    display: grid;
+    gap: 1.25rem;
+  }
+  .founder-media {
+    aspect-ratio: 4 / 5;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--color-black);
+  }
+  .founder-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .founder-placeholder {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    color: var(--color-white);
+    background-image:
+      linear-gradient(var(--color-line-dark) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-line-dark) 1px, transparent 1px);
+    background-size: 25% 20%;
+    background-position: -1px -1px;
+  }
+  .founder-initials {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(5rem, 14vw, 10rem);
+    letter-spacing: -0.06em;
+    line-height: 1;
+    transition: color 0.5s var(--ease-out);
+  }
+  .founder:hover .founder-initials {
+    color: var(--color-acid);
+  }
+  .founder-frame {
+    position: absolute;
+    inset: 10%;
+    border: 1px solid rgb(255 255 255 / 0.25);
+  }
+  .founder-frame::before,
+  .founder-frame::after {
+    content: '';
+    position: absolute;
+    width: 0.9rem;
+    height: 0.9rem;
+    border: 2px solid var(--color-acid);
+  }
+  .founder-frame::before {
+    top: -2px;
+    left: -2px;
+    border-right: 0;
+    border-bottom: 0;
+  }
+  .founder-frame::after {
+    bottom: -2px;
+    right: -2px;
+    border-left: 0;
+    border-top: 0;
+  }
+  .founder-label {
+    position: absolute;
+    left: 10%;
+    bottom: 4%;
+    font-family: var(--font-display);
+    font-size: var(--fs-micro);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-muted-dark);
+  }
+  .founder-info {
+    display: grid;
+    gap: 0.35rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+  }
+  .founder-role {
+    color: var(--muted);
+    font-size: var(--fs-small);
+  }
+  @media (min-width: 640px) {
+    .founders {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .founders > li:nth-child(2) {
+      margin-top: clamp(2rem, 8vw, 7rem);
+    }
+  }
+</style>

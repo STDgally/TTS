@@ -1,0 +1,317 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BgGrid from '../components/BgGrid.astro';
+import HeroVisual from '../components/HeroVisual.astro';
+import Marquee from '../components/Marquee.astro';
+import SectionHead from '../components/SectionHead.astro';
+import ServicesGrid from '../components/ServicesGrid.astro';
+import ProcessTimeline from '../components/ProcessTimeline.astro';
+import Manifesto from '../components/Manifesto.astro';
+import ProjectsGrid from '../components/ProjectsGrid.astro';
+import FoundersGrid from '../components/FoundersGrid.astro';
+import CtaFinal from '../components/CtaFinal.astro';
+import { cta } from '../config/site';
+---
+
+<BaseLayout>
+  <!-- HERO -->
+  <section class="hero theme-dark" aria-labelledby="hero-title">
+    <BgGrid />
+    <div class="container hero-inner">
+      <div class="hero-copy">
+        <p class="hero-kicker" data-reveal>
+          <span class="hero-kicker-dot" aria-hidden="true"></span>
+          Studio TTS — Time To Shine
+        </p>
+        <h1 id="hero-title" class="hero-title">
+          <span class="hero-line" data-reveal style="--reveal-delay:60">È il momento</span>
+          <span class="hero-line" data-reveal style="--reveal-delay:140">di <span class="hl">brillare</span></span>
+          <span class="hero-line" data-reveal style="--reveal-delay:220">online.</span>
+        </h1>
+        <p class="lead hero-lead" data-reveal style="--reveal-delay:320">
+          Progettiamo siti web moderni, curati e su misura per aziende e professionisti che vogliono distinguersi
+          online.
+        </p>
+        <div class="btn-group" data-reveal style="--reveal-delay:400">
+          <a href={cta.primary.href} class="btn btn--lg">
+            {cta.primary.label} <span class="btn-arrow" aria-hidden="true">↗</span>
+          </a>
+          <a href="#cosa-facciamo" class="btn btn--ghost btn--lg">Scopri cosa facciamo</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <HeroVisual />
+      </div>
+    </div>
+    <div class="container hero-meta" aria-hidden="true">
+      <span>Web agency · Italia</span>
+      <span class="hero-scroll">Scorri <i>↓</i></span>
+    </div>
+  </section>
+
+  <Marquee items={['Time to shine', 'Siti web vetrina', 'Web design', 'Responsive design', 'Esperienza utente']} />
+
+  <!-- 01 CHI SIAMO -->
+  <section class="section theme-soft" aria-labelledby="intro-title">
+    <div class="container">
+      <SectionHead number="01" eyebrow="Chi siamo" id="intro-title">
+        Un sito web non deve solo esserci. <span class="hl">Deve rappresentarti.</span>
+      </SectionHead>
+      <div class="grid-12 intro-body">
+        <div class="intro-cols" data-reveal style="--reveal-delay:160">
+          <p>
+            Studio TTS è una web agency fondata da Alessandro Galli e Halil Korkmaz. Aiutiamo aziende e professionisti
+            a costruire una presenza online chiara, moderna e riconoscibile.
+          </p>
+          <p>
+            Crediamo in un design che non sia soltanto bello da vedere, ma anche semplice da usare e coerente con
+            l’identità di ogni attività.
+          </p>
+        </div>
+        <a href="/chi-siamo/" class="intro-link link-line" data-reveal style="--reveal-delay:220">
+          Scopri lo studio ↗
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 SERVIZI -->
+  <section class="section theme-light" id="cosa-facciamo" aria-labelledby="services-title">
+    <div class="container">
+      <SectionHead number="02" eyebrow="Cosa facciamo" id="services-title">
+        Diamo forma alla tua presenza digitale.
+      </SectionHead>
+      <div class="block-gap">
+        <ServicesGrid />
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 METODO -->
+  <section class="section theme-dark method" aria-labelledby="method-title">
+    <BgGrid />
+    <div class="container method-inner">
+      <SectionHead number="03" eyebrow="Come lavoriamo" id="method-title">
+        Un processo semplice. <span class="hl">Un risultato curato.</span>
+      </SectionHead>
+      <div class="block-gap">
+        <ProcessTimeline />
+      </div>
+    </div>
+  </section>
+
+  <!-- DIFFERENZIANTE -->
+  <Manifesto />
+
+  <!-- 04 PROGETTI -->
+  <section class="section theme-soft" aria-labelledby="projects-title">
+    <div class="container">
+      <SectionHead number="04" eyebrow="Progetti" id="projects-title">Il nostro lavoro, in pratica.</SectionHead>
+      <div class="block-gap">
+        <ProjectsGrid limit={4} />
+      </div>
+      <div class="section-foot" data-reveal>
+        <a href="/progetti/" class="btn btn--ghost">Vai al portfolio <span class="btn-arrow" aria-hidden="true">↗</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 FONDATORI -->
+  <section class="section theme-light" aria-labelledby="founders-title">
+    <div class="container">
+      <SectionHead number="05" eyebrow="Le persone dietro TTS" id="founders-title">
+        Due fondatori. Un’idea chiara.
+      </SectionHead>
+      <div class="grid-12 founders-layout block-gap">
+        <div class="founders-text" data-reveal>
+          <p>
+            Studio TTS nasce dall’iniziativa di Alessandro Galli e Halil Korkmaz, con l’obiettivo di creare una web
+            agency che unisca design contemporaneo, attenzione alle persone e soluzioni digitali concrete.
+          </p>
+          <p class="founders-quote">
+            Crediamo che il modo migliore per realizzare un buon sito sia partire da una buona conversazione.
+          </p>
+        </div>
+        <div class="founders-cards">
+          <FoundersGrid />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CtaFinal />
+</BaseLayout>
+
+<style>
+  /* HERO */
+  .hero {
+    position: relative;
+    min-height: 100svh;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    padding-top: calc(var(--header-h) + clamp(2.5rem, 6vw, 4rem));
+    overflow: hidden;
+  }
+  .hero-inner {
+    position: relative;
+    display: grid;
+    gap: clamp(3rem, 6vw, 4rem);
+    align-items: center;
+  }
+  .hero-copy {
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 2.25rem);
+    justify-items: start;
+  }
+  .hero-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 0.85rem 0.4rem 0.6rem;
+    border: 1px solid var(--color-line-dark);
+    border-radius: 999px;
+    font-size: var(--fs-small);
+    color: var(--color-muted-dark);
+  }
+  .hero-kicker-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--color-acid);
+  }
+  .hero-title {
+    font-size: clamp(3rem, 8.4vw, 8rem);
+    line-height: 0.9;
+    letter-spacing: -0.045em;
+    text-transform: uppercase;
+  }
+  .hero-line {
+    display: block;
+  }
+  .hero-lead {
+    max-width: 36ch;
+  }
+  .hero-visual {
+    width: 100%;
+    max-width: 40rem;
+    justify-self: center;
+  }
+  .hero-meta {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    padding-block: 2rem 1.5rem;
+    font-family: var(--font-display);
+    font-size: var(--fs-micro);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-muted-dark);
+  }
+  .hero-scroll i {
+    display: inline-block;
+    font-style: normal;
+    color: var(--color-acid);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-scroll i {
+      animation: nudge 1.8s var(--ease-in-out) infinite;
+    }
+  }
+  @keyframes nudge {
+    50% {
+      transform: translateY(4px);
+    }
+  }
+  @media (min-width: 1080px) {
+    .hero-inner {
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    }
+    .hero-title {
+      font-size: clamp(4rem, 7.2vw, 8rem);
+    }
+  }
+
+  .block-gap {
+    margin-top: clamp(3rem, 7vw, 6rem);
+  }
+  .section-foot {
+    margin-top: 3rem;
+  }
+
+  /* INTRO */
+  .intro-body {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    row-gap: 2rem;
+  }
+  .intro-cols {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: 1.25rem;
+    font-size: var(--fs-lead);
+    line-height: 1.55;
+    color: var(--color-muted-light);
+  }
+  .intro-cols p:first-child {
+    color: var(--color-black);
+  }
+  .intro-link {
+    grid-column: 1 / -1;
+    justify-self: start;
+    font-family: var(--font-display);
+    font-weight: 600;
+  }
+  @media (min-width: 900px) {
+    .intro-cols {
+      grid-column: 4 / -1;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+    .intro-link {
+      grid-column: 4 / -1;
+    }
+  }
+
+  /* METODO */
+  .method {
+    overflow: hidden;
+  }
+  .method-inner {
+    position: relative;
+  }
+
+  /* FONDATORI */
+  .founders-layout {
+    row-gap: 3rem;
+  }
+  .founders-text {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: 1.5rem;
+    align-content: start;
+    font-size: var(--fs-lead);
+    line-height: 1.55;
+  }
+  .founders-quote {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.375rem, 2.2vw, 1.75rem);
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    padding-left: 1.25rem;
+    border-left: 3px solid var(--color-acid);
+  }
+  .founders-cards {
+    grid-column: 1 / -1;
+  }
+  @media (min-width: 1000px) {
+    .founders-text {
+      grid-column: 1 / span 4;
+      position: sticky;
+      top: calc(var(--header-h) + 2rem);
+      align-self: start;
+    }
+    .founders-cards {
+      grid-column: 6 / -1;
+    }
+  }
+</style>

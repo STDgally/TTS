@@ -1,0 +1,14 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+---
+
+<BaseLayout title="Pagina non trovata" description="La pagina che cerchi non esiste o è stata spostata." noindex>
+  <PageHero eyebrow="Errore 404" lead="La pagina che cerchi non esiste o è stata spostata. Nessun problema: ripartiamo da qui.">
+    Questa pagina <em>non brilla</em>. Ancora.
+    <div slot="after" class="btn-group">
+      <a href="/" class="btn btn--lg">Torna alla home <span class="btn-arrow" aria-hidden="true">↗</span></a>
+      <a href="/contatti/" class="btn btn--ghost btn--lg">Contattaci</a>
+    </div>
+  </PageHero>
+</BaseLayout>

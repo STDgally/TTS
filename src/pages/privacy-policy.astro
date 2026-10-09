@@ -1,0 +1,73 @@
+---
+import LegalLayout from '../layouts/LegalLayout.astro';
+import { legal, brand } from '../config/site';
+
+const ph = (value: string | null, label: string) => value ?? `[${label}]`;
+---
+
+<LegalLayout
+  title="Privacy Policy"
+  description="Informativa sul trattamento dei dati personali degli utenti del sito di Studio TTS."
+>
+  <p>
+    Informativa resa ai sensi degli artt. 13 e 14 del Regolamento (UE) 2016/679 (GDPR) agli utenti che consultano il
+    sito di {brand.name} e/o utilizzano il modulo contatti.
+  </p>
+
+  <h2>1. Titolare del trattamento</h2>
+  <p>
+    <span class="placeholder">{ph(legal.companyName, 'Ragione sociale / nome del titolare')}</span>,
+    <span class="placeholder">{ph(legal.registeredOffice, 'indirizzo della sede')}</span>,
+    P.IVA <span class="placeholder">{ph(legal.vatNumber, 'partita IVA')}</span>. Contatto per la privacy:
+    <span class="placeholder">{ph(legal.privacyContactEmail, 'email per le richieste privacy')}</span>.
+  </p>
+
+  <h2>2. Dati trattati</h2>
+  <ul>
+    <li>
+      <strong>Dati di navigazione</strong>: dati tecnici acquisiti dai sistemi che fanno funzionare il sito (es.
+      indirizzo IP, tipo di browser, orario della richiesta), trattati dal fornitore di hosting
+      <span class="placeholder">[nome del fornitore di hosting]</span> per finalità di sicurezza e corretto
+      funzionamento.
+    </li>
+    <li>
+      <strong>Dati forniti volontariamente</strong> tramite il modulo contatti: nome e cognome, azienda o attività,
+      email, tipologia di progetto e contenuto del messaggio.
+    </li>
+  </ul>
+
+  <h2>3. Finalità e base giuridica</h2>
+  <ul>
+    <li>Rispondere alle richieste inviate tramite il modulo contatti — base giuridica: misure precontrattuali su richiesta dell’interessato (art. 6.1.b GDPR).</li>
+    <li>Garantire sicurezza e funzionamento del sito — base giuridica: legittimo interesse del titolare (art. 6.1.f GDPR).</li>
+    <li><span class="placeholder">[Eventuali altre finalità]</span></li>
+  </ul>
+
+  <h2>4. Modalità e destinatari</h2>
+  <p>
+    I dati sono trattati con strumenti elettronici e misure di sicurezza adeguate. Possono essere trattati da
+    fornitori che agiscono come responsabili del trattamento, tra cui: <span class="placeholder">[fornitore di hosting]</span>,
+    <span class="placeholder">[servizio di invio del modulo contatti]</span>,
+    <span class="placeholder">[provider email]</span>. I dati non sono diffusi.
+  </p>
+
+  <h2>5. Trasferimenti extra UE</h2>
+  <p><span class="placeholder">[Indicare se i fornitori trasferiscono dati fuori dallo Spazio Economico Europeo e con quali garanzie]</span></p>
+
+  <h2>6. Conservazione</h2>
+  <p><span class="placeholder">[Indicare i tempi di conservazione dei dati del modulo contatti e dei log tecnici]</span></p>
+
+  <h2>7. Diritti dell’interessato</h2>
+  <p>
+    L’interessato può esercitare in ogni momento i diritti previsti dagli artt. 15–22 GDPR (accesso, rettifica,
+    cancellazione, limitazione, portabilità, opposizione) scrivendo a
+    <span class="placeholder">{ph(legal.privacyContactEmail, 'email per le richieste privacy')}</span>, e proporre reclamo al
+    Garante per la protezione dei dati personali (<a href="https://www.garanteprivacy.it" rel="noopener" target="_blank">www.garanteprivacy.it</a>).
+  </p>
+
+  <h2>8. Cookie</h2>
+  <p>Per informazioni sui cookie consulta la <a href="/cookie-policy/">Cookie Policy</a>.</p>
+
+  <h2>9. Aggiornamenti</h2>
+  <p>Ultimo aggiornamento: <span class="placeholder">[data]</span>.</p>
+</LegalLayout>

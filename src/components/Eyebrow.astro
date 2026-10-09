@@ -1,0 +1,20 @@
+---
+interface Props {
+  number?: string;
+  label: string;
+  class?: string;
+}
+const { number, label, class: className } = Astro.props;
+---
+
+<p class:list={['eyebrow', className]}>
+  {
+    number && (
+      <>
+        <span class="eyebrow-num">{number}</span>
+        <span class="eyebrow-sep" aria-hidden="true">/</span>
+      </>
+    )
+  }
+  <span>{label}</span>
+</p>

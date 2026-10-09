@@ -1,0 +1,120 @@
+---
+import { services } from '../content/services';
+---
+
+<ul role="list" class="services-grid">
+  {
+    services.map((s, i) => (
+      <li data-reveal style={`--reveal-delay:${i * 90}`}>
+        <a href={`/servizi/#${s.id}`} class="service-card">
+          <span class="service-num">{s.number} —</span>
+          <h3 class="h3 service-title">{s.title}</h3>
+          <p class="service-text">{s.summary}</p>
+          <span class="service-more">
+            Approfondisci <span class="service-arrow" aria-hidden="true">↗</span>
+          </span>
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .services-grid {
+    display: grid;
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+  }
+  .services-grid li {
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .service-card {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto 1fr auto auto;
+    gap: 1rem;
+    height: 100%;
+    min-height: 20rem;
+    padding: clamp(1.5rem, 3vw, 2.75rem);
+    isolation: isolate;
+    overflow: hidden;
+    transition: color 0.5s var(--ease-out);
+  }
+  .service-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--color-black);
+    clip-path: inset(100% 0 0 0);
+    transition: clip-path 0.6s var(--ease-out);
+  }
+  .service-card:hover,
+  .service-card:focus-visible {
+    color: var(--color-white);
+  }
+  .service-card:hover::before,
+  .service-card:focus-visible::before {
+    clip-path: inset(0 0 0 0);
+  }
+  .service-num {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--fs-small);
+    letter-spacing: 0.1em;
+  }
+  .service-card:hover .service-num,
+  .service-card:focus-visible .service-num {
+    color: var(--color-acid);
+  }
+  .service-title {
+    align-self: end;
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+  .service-text {
+    max-width: 40ch;
+    color: var(--muted);
+    transition: color 0.5s var(--ease-out);
+  }
+  .service-card:hover .service-text,
+  .service-card:focus-visible .service-text {
+    color: var(--color-muted-dark);
+  }
+  .service-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--fs-small);
+  }
+  .service-arrow {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    transition:
+      transform 0.5s var(--ease-out),
+      background-color 0.3s,
+      border-color 0.3s,
+      color 0.3s;
+  }
+  .service-card:hover .service-arrow,
+  .service-card:focus-visible .service-arrow {
+    background: var(--color-acid);
+    border-color: var(--color-acid);
+    color: var(--color-black);
+    transform: rotate(45deg);
+  }
+  @media (min-width: 760px) {
+    .services-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

@@ -1,0 +1,150 @@
+---
+import Logo from './Logo.astro';
+import { brand, navigation, legalNavigation, contacts, legal } from '../config/site';
+
+const year = new Date().getFullYear();
+const legalLine = [legal.companyName, legal.vatNumber && `P.IVA ${legal.vatNumber}`, legal.registeredOffice]
+  .filter(Boolean)
+  .join(' — ');
+---
+
+<footer class="site-footer theme-dark">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="/" aria-label={`${brand.name} — Home`}>
+          <Logo variant="mark" height="3.25rem" />
+        </a>
+        <p class="footer-claim">
+          <strong>{brand.name} — {brand.meaning}</strong><br />
+          <span class="muted">{brand.tagline}</span>
+        </p>
+      </div>
+
+      <nav class="footer-col" aria-label="Pagine">
+        <p class="footer-label">Pagine</p>
+        <ul role="list">
+          {navigation.map((item) => <li><a class="link-line" href={item.href}>{item.label}</a></li>)}
+        </ul>
+      </nav>
+
+      <nav class="footer-col" aria-label="Informazioni legali">
+        <p class="footer-label">Legale</p>
+        <ul role="list">
+          {legalNavigation.map((item) => <li><a class="link-line" href={item.href}>{item.label}</a></li>)}
+        </ul>
+      </nav>
+
+      {
+        (contacts.email || contacts.phone || contacts.social.length > 0) && (
+          <div class="footer-col">
+            <p class="footer-label">Contatti</p>
+            <ul role="list">
+              {contacts.email && (
+                <li>
+                  <a class="link-line" href={`mailto:${contacts.email}`}>{contacts.email}</a>
+                </li>
+              )}
+              {contacts.phone && (
+                <li>
+                  <a class="link-line" href={`tel:${contacts.phone.replace(/\s/g, '')}`}>{contacts.phone}</a>
+                </li>
+              )}
+              {contacts.social.map((s) => (
+                <li>
+                  <a class="link-line" href={s.href} rel="noopener" target="_blank">
+                    {s.label} ↗
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+    </div>
+
+    <p class="footer-wordmark" aria-hidden="true">Time To Shine<span>.</span></p>
+
+    <div class="footer-bottom">
+      <p>© {year} {brand.name}{legalLine && <> — {legalLine}</>}</p>
+      <a href="#contenuto" class="link-line">Torna su ↑</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    padding-top: clamp(4rem, 8vw, 6rem);
+    padding-bottom: 2rem;
+    border-top: 1px solid var(--color-line-dark);
+    overflow: hidden;
+  }
+  .footer-top {
+    display: grid;
+    gap: 2.5rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .footer-brand {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: 1.5rem;
+    align-content: start;
+  }
+  .footer-claim {
+    line-height: 1.5;
+  }
+  .footer-label {
+    font-family: var(--font-display);
+    font-size: var(--fs-micro);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-acid);
+    margin-bottom: 1rem;
+  }
+  .footer-col ul {
+    display: grid;
+    gap: 0.5rem;
+  }
+  .footer-col a {
+    color: var(--color-muted-dark);
+    transition: color 0.25s;
+  }
+  .footer-col a:hover {
+    color: var(--color-white);
+  }
+  .footer-wordmark {
+    margin-top: clamp(3rem, 8vw, 6rem);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(3rem, 13.5vw, 13rem);
+    line-height: 0.85;
+    letter-spacing: -0.055em;
+    white-space: nowrap;
+    color: transparent;
+    -webkit-text-stroke: 1px rgb(255 255 255 / 0.22);
+    user-select: none;
+  }
+  .footer-wordmark span {
+    color: var(--color-acid);
+    -webkit-text-stroke: 0;
+  }
+  .footer-bottom {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-line-dark);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: var(--fs-small);
+    color: var(--color-muted-dark);
+  }
+  @media (min-width: 800px) {
+    .footer-top {
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+    }
+    .footer-brand {
+      grid-column: auto;
+    }
+  }
+</style>

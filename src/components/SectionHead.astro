@@ -1,0 +1,44 @@
+---
+import Eyebrow from './Eyebrow.astro';
+
+interface Props {
+  number?: string;
+  eyebrow: string;
+  id?: string;
+  /** Livello del titolo (default h2). */
+  as?: 'h1' | 'h2';
+}
+const { number, eyebrow, id, as: Tag = 'h2' } = Astro.props;
+---
+
+<div class="section-head grid-12">
+  <div class="section-head-eyebrow" data-reveal>
+    <Eyebrow number={number} label={eyebrow} />
+  </div>
+  <Tag class="h2 section-head-title" id={id} data-reveal style="--reveal-delay:80">
+    <slot />
+  </Tag>
+</div>
+
+<style>
+  .section-head {
+    row-gap: 1.5rem;
+    align-items: start;
+  }
+  .section-head-eyebrow {
+    grid-column: 1 / -1;
+    padding-top: 0.6em;
+  }
+  .section-head-title {
+    grid-column: 1 / -1;
+    max-width: 16ch;
+  }
+  @media (min-width: 900px) {
+    .section-head-eyebrow {
+      grid-column: 1 / span 3;
+    }
+    .section-head-title {
+      grid-column: 4 / -1;
+    }
+  }
+</style>
