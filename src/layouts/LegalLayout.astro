@@ -11,7 +11,7 @@ const { title, description } = Astro.props;
 
 <BaseLayout title={title} description={description} noindex>
   <PageHero eyebrow="Informazioni legali">{title}</PageHero>
-  <section class="section theme-light">
+  <section class="section theme-light" data-section-label={title}>
     <div class="container">
       <div class="legal-draft" role="note">
         <strong>Documento da completare.</strong>

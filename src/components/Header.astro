@@ -4,21 +4,34 @@ import { navigation, cta, brand } from '../config/site';
 
 const path = Astro.url.pathname.replace(/\/?$/, '/');
 const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+const current = navigation.find((item) => isActive(item.href));
 ---
 
 <header class="site-header" data-header>
-  <div class="container header-inner">
-    <a href="/" class="header-logo" aria-label={`${brand.name} — Home`}>
-      <Logo height="1.9rem" eager />
+  <div class="hb" data-hb>
+    <a href="/" class="hb-logo" aria-label={`${brand.name} — Home`}>
+      <Logo height="1.75rem" eager />
     </a>
 
-    <nav class="header-nav" aria-label="Navigazione principale">
-      <ul role="list">
+    <!-- Indicatore di sezione: si aggiorna durante lo scroll (decorativo) -->
+    <p class="hb-readout" aria-hidden="true">
+      <span class="hb-readout-dot"></span>
+      <span class="hb-readout-text" data-readout>
+        <span class="hb-readout-num" data-readout-num>00</span>
+        <span class="hb-readout-label" data-readout-label>{current?.label ?? brand.meaning}</span>
+      </span>
+    </p>
+
+    <nav class="hb-nav" aria-label="Navigazione principale">
+      <ul role="list" data-nav>
+        <li class="hb-indicator" aria-hidden="true" data-indicator></li>
         {
           navigation.map((item) => (
             <li>
-              <a href={item.href} class="nav-link" aria-current={isActive(item.href) ? 'page' : undefined}>
-                {item.label}
+              <a href={item.href} class="hb-link" aria-current={isActive(item.href) ? 'page' : undefined}>
+                <span class="roll" data-text={item.label}>
+                  <span>{item.label}</span>
+                </span>
               </a>
             </li>
           ))
@@ -26,20 +39,19 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
       </ul>
     </nav>
 
-    <a href={cta.primary.href} class="btn header-cta">
-      {cta.primary.label} <span class="btn-arrow" aria-hidden="true">↗</span>
+    <a href={cta.primary.href} class="btn hb-cta" data-magnetic>
+      <span>{cta.primary.label}</span> <span class="btn-arrow" aria-hidden="true">↗</span>
     </a>
 
-    <button
-      class="menu-toggle"
-      type="button"
-      aria-expanded="false"
-      aria-controls="mobile-menu"
-      data-menu-toggle
-    >
+    <button class="hb-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" data-menu-toggle>
       <span class="visually-hidden" data-menu-label>Apri il menu</span>
-      <span class="menu-toggle-lines" aria-hidden="true"><span></span><span></span></span>
+      <span class="hb-toggle-word" aria-hidden="true">
+        <span class="swap"><span>Menu</span><span>Chiudi</span></span>
+      </span>
+      <span class="hb-toggle-lines" aria-hidden="true"><span></span><span></span></span>
     </button>
+
+    <span class="hb-progress" aria-hidden="true"><span data-progress></span></span>
   </div>
 
   <div class="mobile-menu" id="mobile-menu" data-menu hidden>
@@ -51,6 +63,7 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
               <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
                 <span class="mobile-num">0{i + 1}</span>
                 <span class="mobile-label">{item.label}</span>
+                <span class="mobile-arrow" aria-hidden="true">↗</span>
               </a>
             </li>
           ))
@@ -67,135 +80,271 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
 </header>
 
 <style>
+  /* ---------- Capsula ---------- */
   .site-header {
     position: fixed;
     inset: 0 0 auto;
     z-index: 100;
     color: var(--color-white);
-    transition:
-      background-color 0.4s var(--ease-out),
-      border-color 0.4s var(--ease-out),
-      transform 0.45s var(--ease-out);
-    border-bottom: 1px solid transparent;
+    pointer-events: none;
   }
-  .site-header.is-scrolled {
-    background: rgb(17 17 17 / 0.82);
-    backdrop-filter: blur(14px) saturate(140%);
-    -webkit-backdrop-filter: blur(14px) saturate(140%);
-    border-bottom-color: var(--color-line-dark);
-  }
-  /* backdrop-filter/transform creerebbero un containing block per il menu fixed */
-  .site-header.is-menu-open {
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    transform: none;
-    background: var(--color-black);
-  }
-  .site-header.is-hidden {
-    transform: translateY(-100%);
-  }
-  .header-inner {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-    height: var(--header-h);
-  }
-  .header-logo {
-    flex: none;
+  .hb {
+    --hb-pad: 0.5rem;
     position: relative;
     z-index: 2;
-  }
-  .header-nav {
-    margin-left: auto;
-    display: none;
-  }
-  .header-nav ul {
+    pointer-events: auto;
     display: flex;
-    gap: 0.25rem;
-  }
-  .nav-link {
-    position: relative;
-    display: inline-flex;
     align-items: center;
-    gap: 0.45rem;
-    padding: 0.5rem 0.85rem;
-    font-size: 0.9375rem;
-    font-weight: 500;
-    color: var(--color-muted-dark);
+    gap: 1rem;
+    width: calc(100% - 2 * var(--gutter));
+    max-width: calc(var(--max) - 2 * var(--gutter));
+    height: 3.75rem;
+    margin: 0.75rem auto 0;
+    padding: var(--hb-pad) var(--hb-pad) var(--hb-pad) 1.1rem;
+    border: 1px solid transparent;
     border-radius: 999px;
-    transition: color 0.25s var(--ease-out);
+    transition:
+      max-width 0.7s var(--ease-out),
+      background-color 0.5s var(--ease-out),
+      border-color 0.5s var(--ease-out),
+      box-shadow 0.5s var(--ease-out);
   }
-  .nav-link::before {
-    content: '';
+  .site-header.is-scrolled .hb,
+  .site-header.is-menu-open .hb {
+    max-width: 70rem;
+    background: rgb(22 22 22 / 0.9);
+    border-color: rgb(255 255 255 / 0.1);
+    box-shadow:
+      0 18px 50px -20px rgb(0 0 0 / 0.65),
+      inset 0 1px 0 rgb(255 255 255 / 0.06);
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+  }
+  .hb-logo {
+    flex: none;
+    display: block;
+    padding: 0.25rem;
+    margin-left: -0.25rem;
+  }
+
+  /* ---------- Readout di sezione ---------- */
+  .hb-readout {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-width: 0;
+    padding-left: 1rem;
+    border-left: 1px solid rgb(255 255 255 / 0.14);
+    font-family: var(--font-display);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted-dark);
+    white-space: nowrap;
+  }
+  .hb-readout-dot {
+    flex: none;
     width: 6px;
     height: 6px;
     border-radius: 50%;
     background: var(--color-acid);
-    transform: scale(0);
-    transition: transform 0.35s var(--ease-out);
-    margin-left: -0.6rem;
-    margin-right: -0.1rem;
   }
-  .nav-link:hover,
-  .nav-link[aria-current='page'] {
+  .hb-readout-text {
+    display: flex;
+    gap: 0.45rem;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .hb-readout-num {
+    color: var(--color-acid);
+    font-variant-numeric: tabular-nums;
+  }
+  .hb-readout-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ---------- Navigazione con indicatore scorrevole ---------- */
+  .hb-nav {
+    display: none;
+    margin-left: auto;
+  }
+  .hb-nav ul {
+    position: relative;
+    display: flex;
+    gap: 0.125rem;
+    padding: 0.25rem;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.05);
+    border: 1px solid rgb(255 255 255 / 0.08);
+  }
+  .hb-indicator {
+    position: absolute;
+    top: 0.25rem;
+    bottom: 0.25rem;
+    left: 0;
+    width: var(--w, 0px);
+    transform: translateX(var(--x, 0px));
+    border-radius: 999px;
+    background: var(--color-acid);
+    opacity: 0;
+    transition:
+      transform 0.55s var(--ease-out),
+      width 0.55s var(--ease-out),
+      opacity 0.3s;
+  }
+  .hb-indicator.is-on {
+    opacity: 1;
+  }
+  .hb-link {
+    position: relative;
+    z-index: 1;
+    display: block;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-muted-dark);
+    transition: color 0.35s var(--ease-out);
+  }
+  .hb-link:hover {
     color: var(--color-white);
   }
-  .nav-link[aria-current='page']::before {
-    transform: scale(1);
-    margin-left: 0;
-    margin-right: 0;
-  }
-  .header-cta {
-    display: none;
-    min-height: 2.75rem;
-    padding: 0.6rem 1.15rem;
-    font-size: 0.9375rem;
-  }
-
-  .menu-toggle {
-    margin-left: auto;
-    position: relative;
-    z-index: 2;
-    width: 3rem;
-    height: 3rem;
-    display: grid;
-    place-items: center;
-    border: 1px solid var(--color-line-dark);
-    border-radius: 50%;
-    background: transparent;
-    cursor: pointer;
-    transition: background-color 0.3s var(--ease-out), border-color 0.3s;
-  }
-  .menu-toggle[aria-expanded='true'] {
-    background: var(--color-acid);
-    border-color: var(--color-acid);
+  .hb-link.is-lit {
     color: var(--color-black);
   }
-  .menu-toggle-lines {
-    display: grid;
-    gap: 6px;
-    width: 18px;
-  }
-  .menu-toggle-lines span {
-    height: 2px;
-    background: currentColor;
-    transition: transform 0.4s var(--ease-out);
-  }
-  .menu-toggle[aria-expanded='true'] .menu-toggle-lines span:first-child {
-    transform: translateY(4px) rotate(45deg);
-  }
-  .menu-toggle[aria-expanded='true'] .menu-toggle-lines span:last-child {
-    transform: translateY(-4px) rotate(-45deg);
+  .hb-link:focus-visible {
+    outline-offset: 1px;
   }
 
+  /* Testo che "rotola" all'hover */
+  .roll {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    line-height: 1.3;
+  }
+  .roll > span {
+    display: block;
+  }
+  .roll::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 100%;
+  }
+
+  /* Parole impilate: la larghezza segue la più lunga */
+  .swap {
+    display: grid;
+    overflow: hidden;
+    line-height: 1.3;
+  }
+  .swap > span {
+    grid-area: 1 / 1;
+  }
+  .swap > span:last-child {
+    transform: translateY(100%);
+  }
+  .hb-toggle[aria-expanded='true'] .swap > span:first-child {
+    transform: translateY(-100%);
+  }
+  .hb-toggle[aria-expanded='true'] .swap > span:last-child {
+    transform: none;
+  }
+
+  /* ---------- CTA ---------- */
+  .hb-cta {
+    display: none;
+    flex: none;
+    min-height: 2.75rem;
+    padding: 0.55rem 1.1rem;
+    font-size: 0.875rem;
+  }
+
+  /* ---------- Pulsante menu ---------- */
+  .hb-toggle {
+    flex: none;
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    height: 2.75rem;
+    padding: 0 0.6rem 0 1rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--color-white);
+    color: var(--color-black);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background-color 0.35s var(--ease-out);
+  }
+  .hb-toggle[aria-expanded='true'] {
+    background: var(--color-acid);
+  }
+  .hb-toggle-lines {
+    display: grid;
+    place-content: center;
+    gap: 4px;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background: var(--color-black);
+  }
+  .hb-toggle-lines span {
+    width: 12px;
+    height: 1.5px;
+    background: var(--color-white);
+    transition: transform 0.45s var(--ease-out);
+  }
+  .hb-toggle[aria-expanded='true'] .hb-toggle-lines span:first-child {
+    transform: translateY(2.75px) rotate(45deg);
+  }
+  .hb-toggle[aria-expanded='true'] .hb-toggle-lines span:last-child {
+    transform: translateY(-2.75px) rotate(-45deg);
+  }
+
+  /* ---------- Progresso di lettura ---------- */
+  .hb-progress {
+    position: absolute;
+    left: 1.5rem;
+    right: 1.5rem;
+    bottom: 0;
+    height: 2px;
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .site-header.is-scrolled .hb-progress {
+    opacity: 1;
+  }
+  .hb-progress span {
+    display: block;
+    height: 100%;
+    border-radius: 2px;
+    background: var(--color-acid);
+    transform-origin: left;
+    transform: scaleX(var(--progress, 0));
+  }
+
+  /* ---------- Menu mobile ---------- */
   .mobile-menu {
     position: fixed;
     inset: 0;
     z-index: 1;
+    pointer-events: auto;
     background: var(--color-black);
     padding-top: calc(var(--header-h) + 2rem);
     padding-bottom: 2rem;
     overflow-y: auto;
+    background-image:
+      linear-gradient(var(--color-line-dark) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-line-dark) 1px, transparent 1px);
+    background-size: 100% 25%, 16.666% 100%;
+    background-position: 0 -1px, -1px 0;
   }
   .mobile-menu[hidden] {
     display: none;
@@ -209,6 +358,7 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
   }
   .mobile-links li {
     border-bottom: 1px solid var(--color-line-dark);
+    background: var(--color-black);
   }
   .mobile-links a {
     display: flex;
@@ -227,6 +377,20 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     color: var(--color-acid);
     font-weight: 500;
   }
+  .mobile-arrow {
+    margin-left: auto;
+    align-self: center;
+    font-size: 1.25rem;
+    color: var(--color-muted-dark);
+    transition:
+      transform 0.4s var(--ease-out),
+      color 0.3s;
+  }
+  .mobile-links a:hover .mobile-arrow,
+  .mobile-links a:focus-visible .mobile-arrow {
+    color: var(--color-acid);
+    transform: rotate(45deg);
+  }
   .mobile-links a[aria-current='page'] .mobile-label {
     color: var(--color-acid);
   }
@@ -240,13 +404,51 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     color: var(--color-muted-dark);
   }
 
+  /* ---------- Movimento ---------- */
   @media (prefers-reduced-motion: no-preference) {
+    .roll > span,
+    .roll::after {
+      transition: transform 0.5s var(--ease-out);
+    }
+    .hb-link:hover .roll > span,
+    .hb-link:hover .roll::after,
+    .hb-link:focus-visible .roll > span,
+    .hb-link:focus-visible .roll::after {
+      transform: translateY(-100%);
+    }
+    .swap > span {
+      transition: transform 0.5s var(--ease-out);
+    }
+    .hb-readout-dot {
+      animation: hb-pulse 2.4s var(--ease-out) infinite;
+    }
+    .hb-cta {
+      transition:
+        transform 0.5s var(--ease-out),
+        color 0.35s var(--ease-out),
+        border-color 0.35s var(--ease-out);
+    }
     .mobile-menu.is-open .mobile-links li {
       animation: menu-in 0.6s var(--ease-out) both;
       animation-delay: calc(var(--i) * 55ms + 60ms);
     }
     .mobile-menu.is-open {
-      animation: fade-in 0.35s var(--ease-out);
+      animation: menu-wipe 0.55s var(--ease-out);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hb,
+    .hb-indicator {
+      transition: none;
+    }
+  }
+  @keyframes hb-pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgb(184 255 59 / 0.55);
+    }
+    70%,
+    100% {
+      box-shadow: 0 0 0 7px rgb(184 255 59 / 0);
     }
   }
   @keyframes menu-in {
@@ -255,47 +457,161 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
       transform: translateY(24px);
     }
   }
-  @keyframes fade-in {
+  @keyframes menu-wipe {
     from {
-      opacity: 0;
+      clip-path: inset(0 0 100% 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
     }
   }
 
+  /* ---------- Breakpoint ---------- */
+  @media (max-width: 420px) {
+    .hb-readout-num {
+      display: none;
+    }
+  }
   @media (min-width: 1080px) {
-    .header-nav,
-    .header-cta {
+    .hb-nav,
+    .hb-cta {
       display: flex;
     }
-    .menu-toggle,
+    .hb-toggle,
     .mobile-menu {
       display: none !important;
+    }
+    .hb-readout {
+      flex: 0 1 13rem;
     }
   }
 </style>
 
 <script>
   const header = document.querySelector<HTMLElement>('[data-header]');
+  const hb = document.querySelector<HTMLElement>('[data-hb]');
   const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
   const menu = document.querySelector<HTMLElement>('[data-menu]');
   const label = document.querySelector<HTMLElement>('[data-menu-label]');
+  const progress = document.querySelector<HTMLElement>('[data-progress]');
+  const readout = document.querySelector<HTMLElement>('[data-readout]');
+  const readoutNum = document.querySelector<HTMLElement>('[data-readout-num]');
+  const readoutLabel = document.querySelector<HTMLElement>('[data-readout-label]');
+  const nav = document.querySelector<HTMLElement>('[data-nav]');
+  const indicator = document.querySelector<HTMLElement>('[data-indicator]');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  // Stato della barra in base allo scroll
-  if (header) {
-    let lastY = window.scrollY;
-    const onScroll = () => {
-      const y = window.scrollY;
-      header.classList.toggle('is-scrolled', y > 24);
-      const menuOpen = toggle?.getAttribute('aria-expanded') === 'true';
-      header.classList.toggle('is-hidden', !menuOpen && y > 480 && y > lastY + 4);
-      if (y < lastY - 4 || y < 480) header.classList.remove('is-hidden');
-      lastY = y;
+  /* ---------- Sezioni della pagina per il readout ---------- */
+  type SectionInfo = { el: HTMLElement; num: string; label: string };
+  const fallbackLabel = readoutLabel?.textContent ?? '';
+  // Etichetta: data-section-label sulla sezione, altrimenti l'eyebrow, altrimenti il titolo.
+  const sections: SectionInfo[] = Array.from(document.querySelectorAll<HTMLElement>('main section')).map((el, i) => {
+    const eyebrow = el.querySelector<HTMLElement>(':scope > .container > .eyebrow, :scope .eyebrow:not(aside .eyebrow, nav .eyebrow)');
+    const num = eyebrow?.querySelector('.eyebrow-num')?.textContent?.trim();
+    const eyebrowText = (eyebrow?.textContent ?? '').replace(num ?? '', '').replace('/', '').trim();
+    const heading = el.querySelector('h1, h2')?.textContent?.trim() ?? '';
+    const label = el.dataset.sectionLabel || eyebrowText || (i === 0 ? fallbackLabel : heading.split(/[.?!]/)[0]);
+    return { el, num: num ?? (i === 0 ? '00' : '—'), label: label || fallbackLabel };
+  });
+
+  let currentKey = '';
+  const setReadout = (info: SectionInfo) => {
+    const key = `${info.num}|${info.label}`;
+    if (key === currentKey || !readout || !readoutNum || !readoutLabel) return;
+    const first = currentKey === '';
+    currentKey = key;
+    const apply = () => {
+      readoutNum.textContent = info.num;
+      readoutLabel.textContent = info.label;
     };
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    header.addEventListener('focusin', () => header.classList.remove('is-hidden'));
+    if (first || reduceMotion.matches || !readout.animate) return apply();
+    readout
+      .animate([{ transform: 'none', opacity: 1 }, { transform: 'translateY(-70%)', opacity: 0 }], {
+        duration: 180,
+        easing: 'ease-in',
+      })
+      .finished.then(() => {
+        apply();
+        readout.animate([{ transform: 'translateY(70%)', opacity: 0 }, { transform: 'none', opacity: 1 }], {
+          duration: 320,
+          easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+        });
+      });
+  };
+
+  /* ---------- Scroll: stato capsula, progresso, sezione attiva ---------- */
+  let ticking = false;
+  const update = () => {
+    ticking = false;
+    const y = window.scrollY;
+    header?.classList.toggle('is-scrolled', y > 24);
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    progress?.style.setProperty('--progress', String(max > 0 ? Math.min(1, y / max) : 0));
+
+    if (sections.length) {
+      const probe = (hb?.getBoundingClientRect().bottom ?? 80) + 8;
+      let active = sections[0];
+      for (const s of sections) if (s.el.getBoundingClientRect().top <= probe) active = s;
+      setReadout(active);
+    }
+  };
+  const onScroll = () => {
+    if (!ticking) {
+      ticking = true;
+      requestAnimationFrame(update);
+    }
+  };
+  update();
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+
+  /* ---------- Indicatore scorrevole della navigazione ---------- */
+  if (nav && indicator) {
+    const links = Array.from(nav.querySelectorAll<HTMLAnchorElement>('.hb-link'));
+    const activeLink = links.find((a) => a.getAttribute('aria-current') === 'page') ?? null;
+
+    const moveTo = (link: HTMLAnchorElement | null) => {
+      links.forEach((a) => a.classList.toggle('is-lit', a === link));
+      if (!link) {
+        indicator.classList.remove('is-on');
+        return;
+      }
+      indicator.style.setProperty('--x', `${link.offsetLeft}px`);
+      indicator.style.setProperty('--w', `${link.offsetWidth}px`);
+      indicator.classList.add('is-on');
+    };
+
+    // Posizionamento iniziale senza animazione
+    indicator.style.transition = 'none';
+    moveTo(activeLink);
+    requestAnimationFrame(() => requestAnimationFrame(() => (indicator.style.transition = '')));
+
+    links.forEach((link) => {
+      link.addEventListener('pointerenter', () => moveTo(link));
+      link.addEventListener('focus', () => moveTo(link));
+    });
+    nav.addEventListener('pointerleave', () => moveTo(activeLink));
+    nav.addEventListener('focusout', (e) => {
+      if (!nav.contains(e.relatedTarget as Node)) moveTo(activeLink);
+    });
+    // I font caricati dopo possono cambiare le larghezze
+    document.fonts?.ready.then(() => moveTo(activeLink));
+    window.addEventListener('resize', () => moveTo(activeLink), { passive: true });
   }
 
-  // Menu mobile
+  /* ---------- CTA magnetica (solo puntatore preciso) ---------- */
+  const magnetic = document.querySelector<HTMLElement>('[data-magnetic]');
+  if (magnetic && window.matchMedia('(pointer: fine)').matches && !reduceMotion.matches) {
+    magnetic.addEventListener('pointermove', (e) => {
+      const r = magnetic.getBoundingClientRect();
+      const dx = (e.clientX - (r.left + r.width / 2)) / r.width;
+      const dy = (e.clientY - (r.top + r.height / 2)) / r.height;
+      magnetic.style.transform = `translate(${dx * 8}px, ${dy * 6}px)`;
+    });
+    magnetic.addEventListener('pointerleave', () => (magnetic.style.transform = ''));
+  }
+
+  /* ---------- Menu mobile ---------- */
   if (toggle && menu) {
     const setOpen = (open: boolean) => {
       toggle.setAttribute('aria-expanded', String(open));
@@ -310,12 +626,13 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
 
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+      if (toggle.getAttribute('aria-expanded') !== 'true') return;
+      if (e.key === 'Escape') {
         setOpen(false);
         toggle.focus();
       }
       // Mantiene il focus nel menu aperto
-      if (e.key === 'Tab' && toggle.getAttribute('aria-expanded') === 'true') {
+      if (e.key === 'Tab') {
         const focusables = [toggle, ...menu.querySelectorAll<HTMLElement>('a')];
         const first = focusables[0];
         const last = focusables[focusables.length - 1];
