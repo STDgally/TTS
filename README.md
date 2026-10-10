@@ -55,6 +55,10 @@ Aggiungi i progetti reali in `src/content/projects.ts` (c'è un esempio commenta
 
 Salva le foto autentiche in `public/team/` (formato 4:5) e imposta `photo` in `src/content/founders.ts`. Finché manca, viene mostrato un riquadro grafico con le iniziali.
 
+## Strumento preventivi
+
+In `tools/preventivi/` c'è il generatore di preventivi interno: un file HTML autonomo da usare in locale, separato dal sito. Istruzioni in `tools/preventivi/README.md`.
+
 ## Note tecniche
 
 - Mobile-first, HTML semantico, skip link, focus visibile, menu mobile accessibile (Esc, focus trap, `aria-expanded`).

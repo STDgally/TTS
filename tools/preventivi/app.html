@@ -1,0 +1,712 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Preventivi TTS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+@font-face { font-family: 'Space Grotesk'; font-weight: 300 700; font-display: swap; src: url(__FONT_DISPLAY__) format('woff2'); }
+@font-face { font-family: 'Inter'; font-weight: 100 900; font-display: swap; src: url(__FONT_BODY__) format('woff2'); }
+/* Layout: editor a sinistra, foglio A4 del preventivo a destra (impilati su mobile). Brand Studio TTS. */
+:root {
+  --bg: #f4f4f0;
+  --panel: #ffffff;
+  --fg: #111111;
+  --muted: #5e5e5e;
+  --line: #dddcd5;
+  --acid: #b8ff3b;
+  --acid-ink: #111111;
+  --field: #ffffff;
+  --warn: #8a5a00;
+  --warn-bg: #fff4d1;
+  --ok: #2c6b00;
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111111; --panel: #1a1a1a; --fg: #f4f4f0; --muted: #a3a39c; --line: #2e2e2b;
+    --field: #141414; --warn: #ffd166; --warn-bg: #3a2f10; --ok: #b8ff3b; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111111; --panel: #1a1a1a; --fg: #f4f4f0; --muted: #a3a39c; --line: #2e2e2b;
+  --field: #141414; --warn: #ffd166; --warn-bg: #3a2f10; --ok: #b8ff3b; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+[hidden] { display: none !important; }
+img { max-width: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 14px; line-height: 1.5; }
+h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--acid); outline-offset: 2px; }
+
+.app { padding-inline: 16px; padding-block: 16px 48px; max-width: 1500px; margin: 0 auto; display: grid; gap: 16px; }
+
+/* Barra superiore */
+.top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; padding: 10px 12px 10px 16px; background: #111; color: #f4f4f0; border-radius: 14px; }
+.top .brand { display: flex; align-items: center; gap: 10px; margin-right: auto; }
+.top .brand img { height: 22px; width: auto; }
+.top .brand span { font-family: var(--font-display); font-weight: 600; font-size: 15px; color: #f4f4f0; }
+.top select { background: #1f1f1f; border: 1px solid #333; border-radius: 999px; padding: 8px 12px; max-width: 260px; color: #f4f4f0; }
+.btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid transparent; border-radius: 999px; padding: 8px 14px; font-family: var(--font-display); font-weight: 600; cursor: pointer; background: transparent; white-space: nowrap; }
+.btn-acid { background: var(--acid); color: var(--acid-ink); }
+.btn-acid:hover { background: #cbff6e; }
+.btn-dark { border-color: #3a3a3a; color: #f4f4f0; }
+.btn-dark:hover { border-color: #f4f4f0; }
+.btn-plain { border-color: var(--line); color: var(--fg); background: var(--panel); }
+.btn-plain:hover { border-color: var(--fg); }
+.btn[disabled] { opacity: .5; cursor: default; }
+.status { font-size: 12px; color: #a3a39c; min-width: 0; }
+.status.dirty { color: #ffd166; }
+.status.saved { color: var(--acid); }
+
+.cols { display: grid; gap: 16px; align-items: start; }
+@media (min-width: 1100px) { .cols { grid-template-columns: minmax(0, 460px) minmax(0, 1fr); } .sheet-wrap { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow: auto; } }
+
+/* Editor */
+.editor { display: grid; gap: 10px; min-width: 0; }
+details.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
+details.card > summary { list-style: none; cursor: pointer; padding: 12px 16px; display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 600; font-size: 15px; }
+details.card > summary::-webkit-details-marker { display: none; }
+details.card > summary::after { content: '+'; margin-left: auto; font-weight: 500; color: var(--muted); }
+details.card[open] > summary::after { content: '−'; }
+.sum-note { font-family: var(--font-body); font-weight: 500; font-size: 12px; color: var(--muted); }
+.card-body { padding: 0 16px 16px; display: grid; gap: 12px; }
+.grid2 { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+.grid2 > .full { grid-column: 1 / -1; }
+@media (max-width: 480px) { .grid2 { grid-template-columns: 1fr; } }
+label.f { display: grid; gap: 4px; font-size: 12px; font-weight: 500; color: var(--muted); min-width: 0; }
+.f input, .f select, .f textarea, .item input, .item select { width: 100%; background: var(--field); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; color: var(--fg); min-width: 0; }
+.f textarea { resize: vertical; min-height: 84px; line-height: 1.45; }
+.f input:focus, .f select:focus, .f textarea:focus, .item input:focus { border-color: var(--fg); outline: none; box-shadow: 0 0 0 2px var(--acid); }
+.hint { font-size: 12px; color: var(--muted); margin: 0; }
+.warn { font-size: 12px; color: var(--warn); background: var(--warn-bg); border-radius: 8px; padding: 8px 10px; margin: 0; }
+
+.group-title { font-family: var(--font-display); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-top: 6px; }
+.item { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; padding: 8px 0; border-top: 1px solid var(--line); }
+.item > input[type=checkbox] { width: 18px; height: 18px; margin-top: 2px; accent-color: #111; }
+:root[data-theme="dark"] .item > input[type=checkbox] { accent-color: var(--acid); }
+.item .name { font-weight: 600; }
+.item .desc { font-size: 12px; color: var(--muted); }
+.item .nums { grid-column: 2; display: none; grid-template-columns: 64px minmax(0, 1fr) minmax(0, 1fr); gap: 6px; margin-top: 4px; }
+.item.on .nums { display: grid; }
+.item .nums input, .item .nums select { padding: 6px 8px; font-variant-numeric: tabular-nums; }
+.item .del { grid-column: 2; justify-self: start; font-size: 12px; background: none; border: 0; padding: 0; color: var(--muted); text-decoration: underline; cursor: pointer; }
+.mini-label { font-size: 11px; color: var(--muted); }
+.add-custom { justify-self: start; }
+
+/* Foglio del preventivo */
+.sheet-wrap { min-width: 0; }
+.sheet { background: #fff; color: #111; width: 100%; max-width: 820px; margin: 0 auto; border-radius: 4px; box-shadow: 0 10px 40px -18px rgb(0 0 0 / .35); overflow: hidden; }
+.q { font-family: 'Inter', system-ui, sans-serif; font-size: 12.5px; line-height: 1.5; color: #111; }
+.q-head { background: #111; color: #f4f4f0; padding: 22px 36px; display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between; }
+.q-head img { height: 34px; width: auto; display: block; }
+.q-head .q-title { text-align: right; }
+.q-head .q-title b { display: block; font-family: 'Space Grotesk', system-ui, sans-serif; font-size: 20px; letter-spacing: -0.02em; }
+.q-head .q-title span { font-size: 11.5px; color: #c9c9c2; }
+.q-body { padding: 26px 36px 34px; display: grid; gap: 20px; }
+.q h2 { font-family: 'Space Grotesk', system-ui, sans-serif; font-size: 14px; letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; margin: 0 0 8px; padding-bottom: 6px; border-bottom: 1.5px solid #111; }
+.q h2 i { font-style: normal; display: inline-grid; place-items: center; min-width: 20px; height: 20px; border-radius: 999px; background: #b8ff3b; font-size: 11px; padding: 0 5px; }
+.q h3 { font-family: 'Space Grotesk', system-ui, sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: #555; margin: 10px 0 4px; }
+.q .parties { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.q .parties .lab { font-size: 10.5px; text-transform: uppercase; letter-spacing: .1em; color: #666; margin-bottom: 2px; }
+.q .parties b { font-size: 13.5px; }
+.q .meta { display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: 12px; color: #333; }
+.q .meta b { color: #111; }
+.q table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.q th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: #666; font-weight: 600; padding: 4px 6px; border-bottom: 1px solid #ccc; }
+.q td { padding: 6px; border-bottom: 1px solid #e8e8e2; vertical-align: top; }
+.q td.n, .q th.n { text-align: right; white-space: nowrap; }
+.q table.items { table-layout: fixed; min-width: 480px; }
+.q table.items .w-q { width: 48px; } .q table.items .w-p { width: 96px; } .q table.items .w-f { width: 90px; }
+.item .fixed-f { font-size: 12px; color: var(--muted); align-self: center; }
+.q td .d { display: block; color: #666; font-size: 11.5px; }
+.q .kv td:first-child { width: 34%; color: #555; }
+.q .tot td { border-bottom: 0; padding: 3px 6px; }
+.q .tot .grand td { border-top: 1.5px solid #111; font-weight: 700; font-size: 14px; padding-top: 7px; }
+.q .tot .grand td:last-child { background: #b8ff3b; }
+.q ul, .q ol { margin: 0; padding-left: 18px; }
+.q li + li { margin-top: 2px; }
+.q .cols3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.q .sign { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 8px; }
+.q .sign div { border-top: 1px solid #111; padding-top: 6px; font-size: 11.5px; color: #444; min-height: 64px; }
+.q .small { font-size: 11.5px; color: #555; }
+.q .empty { color: #999; font-style: italic; }
+.q-scroll { overflow-x: auto; }
+@media (max-width: 640px) {
+  .q-head, .q-body { padding-inline: 18px; }
+  .q .parties, .q .cols3, .q .sign { grid-template-columns: 1fr; }
+}
+.q section { break-inside: avoid; }
+@page { size: A4; margin: 0; }
+@media print {
+  body { background: #fff; }
+  .top, .editor { display: none !important; }
+  .app { padding: 0; max-width: none; display: block; }
+  .cols { display: block; }
+  .sheet-wrap { position: static; max-height: none; overflow: visible; }
+  .sheet { max-width: none; box-shadow: none; border-radius: 0; }
+  .q-head, .q h2 i, .q .grand td:last-child { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .q table.items { min-width: 0; }
+}
+</style>
+
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand"><img src="__LOGO__" alt="TTS." width="320" height="120"><span>Preventivi</span></div>
+    <select id="quote-picker" aria-label="Apri un preventivo salvato"><option value="">Preventivi salvati…</option></select>
+    <button class="btn btn-dark" id="btn-new" type="button">Nuovo</button>
+    <button class="btn btn-dark" id="btn-dup" type="button">Duplica</button>
+    <button class="btn btn-acid" id="btn-save" type="button">Salva</button>
+    <button class="btn btn-dark" id="btn-print" type="button">Stampa / PDF</button>
+    <button class="btn btn-dark" id="btn-delete" type="button">Elimina</button>
+    <button class="btn btn-dark" id="btn-backup" type="button" title="Scarica una copia di tutti i preventivi">Backup ↓</button>
+    <button class="btn btn-dark" id="btn-restore" type="button" title="Importa un backup">Importa ↑</button>
+    <input type="file" id="restore-file" accept="application/json,.json" hidden>
+    <span class="status" id="status" role="status" aria-live="polite"></span>
+  </header>
+
+  <div class="cols">
+    <form class="editor" id="editor" autocomplete="off" novalidate>
+      <details class="card" open>
+        <summary>Preventivo e cliente <span class="sum-note" id="sum-client"></span></summary>
+        <div class="card-body">
+          <div class="grid2">
+            <label class="f">Numero<input id="numero" data-k="numero"></label>
+            <label class="f">Stato
+              <select id="stato" data-k="stato"><option>Bozza</option><option>Inviato</option><option>Accettato</option><option>Rifiutato</option></select>
+            </label>
+            <label class="f">Data<input id="data" type="date" data-k="data"></label>
+            <label class="f">Validità (giorni)<input id="validita" type="number" min="1" data-k="validita"></label>
+            <label class="f full">Referente Studio TTS
+              <select id="referente" data-k="referente"><option>Alessandro Galli</option><option>Halil Korkmaz</option><option>Alessandro Galli e Halil Korkmaz</option></select>
+            </label>
+          </div>
+          <div class="group-title">Cliente</div>
+          <div class="grid2">
+            <label class="f full">Ragione sociale<input id="cli-nome" data-k="cliente.nome"></label>
+            <label class="f full">Indirizzo<input id="cli-indirizzo" data-k="cliente.indirizzo"></label>
+            <label class="f">P.IVA / C.F.<input id="cli-piva" data-k="cliente.piva"></label>
+            <label class="f">Referente<input id="cli-ref" data-k="cliente.referente"></label>
+            <label class="f">Email<input id="cli-email" type="email" data-k="cliente.email"></label>
+            <label class="f">Telefono<input id="cli-tel" data-k="cliente.telefono"></label>
+          </div>
+        </div>
+      </details>
+
+      <details class="card">
+        <summary>Oggetto del progetto</summary>
+        <div class="card-body">
+          <div class="grid2">
+            <label class="f">Tipo di progetto
+              <select id="ogg-tipo" data-k="oggetto.tipo"><option>Nuovo sito</option><option>Rifacimento di un sito esistente</option></select>
+            </label>
+            <label class="f">Sito attuale<input id="ogg-sito" data-k="oggetto.sitoAttuale" placeholder="es. www.esempio.it"></label>
+            <label class="f full">Attività del cliente<input id="ogg-att" data-k="oggetto.attivita"></label>
+            <label class="f full">Obiettivo principale<input id="ogg-obi" data-k="oggetto.obiettivo"></label>
+            <label class="f">Pubblico<input id="ogg-pub" data-k="oggetto.pubblico"></label>
+            <label class="f">Lingue<input id="ogg-lingue" data-k="oggetto.lingue"></label>
+            <label class="f full">Riferimenti e materiali<textarea id="ogg-rif" data-k="oggetto.riferimenti" rows="2"></textarea></label>
+          </div>
+          <p class="hint">I campi vuoti non compaiono nel preventivo.</p>
+        </div>
+      </details>
+
+      <details class="card" open>
+        <summary>Voci del preventivo <span class="sum-note" id="sum-items"></span></summary>
+        <div class="card-body">
+          <p class="hint">Spunta le voci, poi indica quantità e prezzo unitario (IVA esclusa). Nel preventivo compaiono solo le voci spuntate.</p>
+          <div id="catalog"></div>
+          <button class="btn btn-plain" id="btn-listino" type="button">Salva questi prezzi come listino</button>
+          <p class="hint">Il listino precompila il prezzo quando spunti una voce nei prossimi preventivi.</p>
+        </div>
+      </details>
+
+      <details class="card">
+        <summary>Economia, tempi e pagamenti</summary>
+        <div class="card-body">
+          <div class="grid2">
+            <label class="f">Sconto (€)<input id="sconto" type="number" min="0" step="1" data-k="sconto" data-num></label>
+            <label class="f">Motivo sconto<input id="sconto-motivo" data-k="scontoMotivo"></label>
+            <label class="f">IVA (%)<input id="iva" type="number" min="0" step="1" data-k="iva" data-num></label>
+            <label class="f">Durata totale (settimane)<input id="settimane" type="number" min="1" data-k="settimane" data-num></label>
+          </div>
+          <div class="group-title">Fasi (giorni lavorativi)</div>
+          <div class="grid2">
+            <label class="f">1. Ascolto<input id="f1" type="number" min="0" data-k="fasi.0" data-num></label>
+            <label class="f">2. Progettazione<input id="f2" type="number" min="0" data-k="fasi.1" data-num></label>
+            <label class="f">3. Realizzazione<input id="f3" type="number" min="0" data-k="fasi.2" data-num></label>
+            <label class="f">4. Pubblicazione<input id="f4" type="number" min="0" data-k="fasi.3" data-num></label>
+            <label class="f">Revisioni proposta grafica<input id="rev-g" type="number" min="0" data-k="revisioniGrafica" data-num></label>
+            <label class="f">Revisioni sito completo<input id="rev-s" type="number" min="0" data-k="revisioniSito" data-num></label>
+          </div>
+          <div class="group-title">Pagamenti (% del totale una tantum)</div>
+          <div class="grid2">
+            <label class="f">Acconto alla firma<input id="p1" type="number" min="0" max="100" data-k="pagamenti.0" data-num></label>
+            <label class="f">All'approvazione della grafica<input id="p2" type="number" min="0" max="100" data-k="pagamenti.1" data-num></label>
+            <label class="f">Saldo alla pubblicazione<input id="p3" type="number" min="0" max="100" data-k="pagamenti.2" data-num></label>
+            <label class="f">Pagamento entro (giorni)<input id="termini" type="number" min="0" data-k="terminiPagamento" data-num></label>
+          </div>
+          <p class="warn" id="pay-warn" hidden></p>
+          <label class="f">Disdetta servizi ricorrenti (giorni prima della scadenza)<input id="disdetta" type="number" min="0" data-k="disdetta" data-num></label>
+        </div>
+      </details>
+
+      <details class="card">
+        <summary>Testi e condizioni</summary>
+        <div class="card-body">
+          <p class="hint">Una voce per riga. Le modifiche valgono solo per questo preventivo.</p>
+          <label class="f">Sempre incluso<textarea id="t-incluso" data-k="testi.incluso"></textarea></label>
+          <label class="f">Non incluso<textarea id="t-escluso" data-k="testi.escluso"></textarea></label>
+          <label class="f">A carico del cliente<textarea id="t-cliente" data-k="testi.cliente"></textarea></label>
+          <label class="f">Condizioni<textarea id="t-cond" data-k="testi.condizioni" rows="6"></textarea></label>
+          <label class="f">Note per il cliente<textarea id="t-note" data-k="note" rows="3"></textarea></label>
+          <button class="btn btn-plain" id="btn-reset-text" type="button">Ripristina i testi standard</button>
+        </div>
+      </details>
+
+      <details class="card">
+        <summary>Dati di Studio TTS <span class="sum-note">condivisi tra i preventivi</span></summary>
+        <div class="card-body">
+          <div class="grid2">
+            <label class="f full">Ragione sociale<input id="st-nome" data-s="nome"></label>
+            <label class="f full">Indirizzo<input id="st-indirizzo" data-s="indirizzo"></label>
+            <label class="f">P.IVA<input id="st-piva" data-s="piva"></label>
+            <label class="f">Telefono<input id="st-tel" data-s="telefono"></label>
+            <label class="f">Email<input id="st-email" data-s="email"></label>
+            <label class="f">Sito<input id="st-sito" data-s="sito"></label>
+            <label class="f full">IBAN<input id="st-iban" data-s="iban"></label>
+          </div>
+          <button class="btn btn-plain" id="btn-studio" type="button">Salva dati dello studio</button>
+        </div>
+      </details>
+    </form>
+
+    <div class="sheet-wrap">
+      <article class="sheet" id="sheet" aria-label="Anteprima del preventivo"></article>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const LOGO = "__LOGO__";
+
+  /* ---------- Catalogo voci ---------- */
+  // f: frequenza — 'una' una tantum, 'anno' annuale, 'mese' mensile, 'var' scelta in preventivo
+  const CATALOG = [
+    { g: 'Pagine principali', sec: 'pagine', items: [
+      ['home', 'Home', 'Apertura con messaggio principale, presentazione, servizi in breve, punti di forza, invito al contatto'],
+      ['chi-siamo', 'Chi siamo', 'Storia, approccio, valori, persone'],
+      ['servizi', 'Servizi — panoramica', 'Elenco dei servizi con breve descrizione'],
+      ['servizio', 'Servizio — pagina dedicata', 'Descrizione completa di un singolo servizio'],
+      ['contatti', 'Contatti', 'Modulo, recapiti, orari, mappa'],
+    ]},
+    { g: 'Pagine di contenuto', sec: 'pagine', items: [
+      ['portfolio', 'Portfolio / Lavori', 'Griglia dei lavori realizzati'],
+      ['scheda-progetto', 'Scheda progetto', 'Dettaglio di un lavoro: immagini, descrizione, link'],
+      ['catalogo', 'Prodotti / Catalogo vetrina', 'Prodotti presentati senza vendita online'],
+      ['listino', 'Listino / Pacchetti / Menù', "Prezzi, formule o menù dell'attività"],
+      ['team', 'Team', 'Schede delle persone con ruolo e foto'],
+      ['recensioni', 'Recensioni / Testimonianze', 'Opinioni reali dei clienti'],
+      ['faq', 'Domande frequenti (FAQ)', 'Risposte alle domande più comuni'],
+      ['galleria', 'Galleria foto / video', 'Raccolta di immagini o video'],
+      ['blog', 'News / Blog', 'Elenco articoli e modello di articolo'],
+      ['articoli', 'Inserimento articoli iniziali', 'Articoli forniti dal cliente, impaginati'],
+      ['eventi', 'Eventi', 'Calendario o elenco di eventi'],
+      ['sedi', 'Sedi / Dove siamo', 'Indirizzi, mappe, orari per più sedi'],
+      ['appuntamenti', 'Richiesta appuntamento', 'Modulo dedicato a prenotazioni o richieste'],
+      ['lavora', 'Lavora con noi', 'Posizioni aperte e modulo candidatura'],
+      ['download', 'Area download', 'Brochure, cataloghi, documenti PDF'],
+      ['landing', 'Landing page', "Pagina singola per una promozione o un'iniziativa"],
+    ]},
+    { g: 'Pagine di servizio e legali', sec: 'pagine', items: [
+      ['privacy', 'Privacy Policy', 'Impaginazione del testo fornito dal cliente o dal suo consulente'],
+      ['cookie', 'Cookie Policy e banner consenso', 'Pagina e banner, se il sito usa cookie non tecnici'],
+      ['note-legali', 'Note legali', 'Dati societari e informazioni obbligatorie'],
+      ['conferma', 'Pagina di conferma invio', "Messaggio dopo l'invio di un modulo"],
+      ['404', 'Pagina 404', 'Pagina per gli indirizzi inesistenti'],
+    ]},
+    { g: 'Design e contenuti', sec: 'servizi', items: [
+      ['design', 'Design personalizzato', 'Direzione visiva su misura: colori, caratteri, impaginazione'],
+      ['identita', "Adattamento all'identità esistente", 'Uso di logo, colori e font già definiti dal cliente'],
+      ['contenuti', 'Inserimento contenuti', 'Testi e immagini forniti dal cliente, impaginati nelle pagine'],
+      ['testi', 'Scrittura o revisione testi', 'Testi delle pagine scritti o sistemati da noi'],
+      ['foto', 'Immagini da archivi con licenza', 'Ricerca e acquisto di foto adatte'],
+      ['img-opt', 'Ottimizzazione immagini', 'Formato e peso adatti al web'],
+      ['lingua', 'Seconda lingua', 'Struttura multilingua e inserimento dei testi tradotti forniti'],
+    ]},
+    { g: 'Funzionalità', sec: 'servizi', items: [
+      ['form', 'Modulo contatti', 'Invio delle richieste via email, con consenso privacy'],
+      ['mappa', 'Mappa', 'Mappa della sede incorporata'],
+      ['contatto-rapido', 'Contatto rapido', 'Pulsanti chiamata, email o WhatsApp'],
+      ['social', 'Collegamenti social', 'Icone verso i profili del cliente'],
+      ['video', 'Video incorporati', 'Video da YouTube, Vimeo o file del cliente'],
+      ['newsletter', 'Iscrizione newsletter', 'Modulo collegato al servizio scelto dal cliente'],
+      ['prenotazioni', 'Prenotazioni esterne', 'Collegamento a un sistema di prenotazione già in uso'],
+      ['cms', 'Gestione autonoma dei contenuti', 'Pannello per modificare testi e immagini senza di noi'],
+    ]},
+    { g: 'Tecnica e messa online', sec: 'servizi', items: [
+      ['dominio', 'Dominio', 'Registrazione o trasferimento del dominio', 'anno'],
+      ['hosting', 'Hosting', 'Spazio web con certificato di sicurezza (https)', 'anno'],
+      ['email', 'Caselle email', 'Caselle sul dominio del cliente', 'anno'],
+      ['seo-base', 'Configurazione di base per i motori di ricerca', 'Titoli, descrizioni, sitemap, collegamento a Google Search Console'],
+      ['statistiche', 'Statistiche delle visite', 'Strumento di analisi con gestione del consenso'],
+      ['migrazione', 'Migrazione dal vecchio sito', 'Recupero contenuti e reindirizzamento dei vecchi indirizzi'],
+      ['pubblicazione', 'Pubblicazione', 'Messa online, controlli finali su smartphone, tablet e desktop'],
+    ]},
+    { g: 'Dopo la pubblicazione', sec: 'servizi', items: [
+      ['formazione', 'Formazione', 'Sessione per imparare ad aggiornare il sito'],
+      ['manutenzione', 'Manutenzione', 'Aggiornamenti tecnici, backup, controlli periodici', 'var'],
+      ['ore', 'Pacchetto modifiche', 'Ore di modifiche ai contenuti'],
+    ]},
+  ];
+  const ITEM = {};
+  CATALOG.forEach(grp => grp.items.forEach(([id, voce, dettaglio, f]) => { ITEM[id] = { id, voce, dettaglio, f: f || 'una', g: grp.g, sec: grp.sec }; }));
+  const FREQ = { una: 'Una tantum', anno: 'Annuale', mese: 'Mensile' };
+
+  const DEFAULT_TEXTS = {
+    incluso: ['Sito responsive: funziona su smartphone, tablet e desktop', 'Verifica sui principali browser aggiornati', 'Attenzione a leggibilità e accessibilità', 'Riunioni di avanzamento previste dalle fasi'].join('\n'),
+    escluso: ['Vendita online (e-commerce) e pagamenti sul sito', 'Campagne pubblicitarie e gestione dei profili social', 'Attività di posizionamento sui motori di ricerca oltre la configurazione di base', 'Redazione dei testi legali (privacy, cookie, note legali)', 'Servizi fotografici e video'].join('\n'),
+    cliente: ['Testi, logo, foto e documenti prima della fase di realizzazione', 'Accessi a dominio, hosting e vecchio sito, se esistenti', 'Approvazione di ogni fase entro 5 giorni lavorativi'].join('\n'),
+    condizioni: ['Richieste fuori da questo preventivo vengono quotate a parte, prima di essere eseguite.', 'Se i materiali arrivano in ritardo, i tempi si spostano di conseguenza.', 'Dopo il saldo, il sito e i contenuti sono del cliente; restano esclusi i materiali di terzi con licenza propria (font, foto, software).', 'Studio TTS può citare il progetto nel proprio portfolio, salvo diversa richiesta scritta del cliente.', 'I risultati commerciali del sito (contatti, vendite, visibilità) non sono garantiti: dipendono anche da fattori esterni al progetto.'].join('\n'),
+  };
+
+  const today = () => new Date().toISOString().slice(0, 10);
+  function blankQuote(numero) {
+    return {
+      numero: numero || '', stato: 'Bozza', data: today(), validita: 30, referente: 'Alessandro Galli e Halil Korkmaz',
+      cliente: { nome: '', indirizzo: '', piva: '', referente: '', email: '', telefono: '' },
+      oggetto: { tipo: 'Nuovo sito', sitoAttuale: '', attivita: '', obiettivo: '', pubblico: '', lingue: 'Italiano', riferimenti: '' },
+      righe: {}, custom: [],
+      sconto: 0, scontoMotivo: '', iva: 22, settimane: 6,
+      fasi: [3, 7, 15, 3], revisioniGrafica: 2, revisioniSito: 1,
+      pagamenti: [40, 30, 30], terminiPagamento: 15, disdetta: 30,
+      testi: { ...DEFAULT_TEXTS }, note: '',
+    };
+  }
+  // Esempio iniziale, chiaramente marcato, per mostrare come appare un preventivo compilato
+  function exampleQuote() {
+    const q = blankQuote(new Date().getFullYear() + '-ESEMPIO');
+    q.cliente = { nome: 'Cliente di esempio S.r.l.', indirizzo: 'Via Esempio 1, Città', piva: '', referente: 'Nome Cognome', email: '', telefono: '' };
+    q.oggetto.attivita = 'Esempio: studio professionale';
+    q.oggetto.obiettivo = 'Presentare i servizi e ricevere richieste di contatto';
+    ['home', 'chi-siamo', 'servizi', 'contatti', 'privacy', 'design', 'contenuti', 'form', 'pubblicazione', 'hosting'].forEach(id => { q.righe[id] = { on: true, qta: 1, prezzo: 0, f: ITEM[id].f === 'var' ? 'anno' : ITEM[id].f }; });
+    q.righe.servizio = { on: true, qta: 3, prezzo: 0, f: 'una' };
+    q.note = 'Questo è un esempio: i prezzi sono a zero. Premi "Nuovo" per iniziare un preventivo vero.';
+    return q;
+  }
+
+  /* ---------- Stato ---------- */
+  let quote = exampleQuote();
+  let quoteId = null;           // id del documento salvato
+  let quotes = [];              // elenco preventivi salvati
+  let listino = {};             // prezzi standard per voce
+  let studio = { nome: 'Studio TTS', indirizzo: '', piva: '', telefono: '', email: '', sito: '', iban: '' };
+  let dirty = false;
+
+  const $ = (s, r = document) => r.querySelector(s);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const eur = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' });
+  const money = n => eur.format(Number(n) || 0);
+  const num = v => { const n = parseFloat(String(v).replace(',', '.')); return Number.isFinite(n) ? n : 0; };
+  const fmtDate = iso => { if (!iso) return ''; const [y, m, d] = iso.split('-'); return `${d}/${m}/${y}`; };
+  const addDays = (iso, days) => { const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + (Number(days) || 0)); return d.toISOString().slice(0, 10); };
+  const lines = t => String(t || '').split('\n').map(s => s.trim()).filter(Boolean);
+
+  const getPath = (obj, path) => path.split('.').reduce((o, k) => (o == null ? o : o[k]), obj);
+  const setPath = (obj, path, val) => { const ks = path.split('.'); const last = ks.pop(); const tgt = ks.reduce((o, k) => (o[k] ??= {}), obj); tgt[last] = val; };
+
+  function setStatus(text, kind) { const el = $('#status'); el.textContent = text; el.className = 'status' + (kind ? ' ' + kind : ''); }
+  function markDirty() { dirty = true; setStatus('Modifiche non salvate', 'dirty'); saveDraft(); }
+  function saveDraft() { try { localStorage.setItem('tts-preventivo-bozza', JSON.stringify({ quote, quoteId })); } catch {} }
+
+  /* ---------- Editor: campi semplici ---------- */
+  function fillFields() {
+    document.querySelectorAll('[data-k]').forEach(el => { const v = getPath(quote, el.dataset.k); el.value = v ?? ''; });
+    document.querySelectorAll('[data-s]').forEach(el => { el.value = studio[el.dataset.s] ?? ''; });
+  }
+  $('#editor').addEventListener('input', e => {
+    const el = e.target;
+    if (el.dataset.k) {
+      const v = el.hasAttribute('data-num') ? num(el.value) : el.value;
+      setPath(quote, el.dataset.k, v);
+      markDirty(); render();
+    } else if (el.dataset.s) {
+      studio[el.dataset.s] = el.value; render();
+    }
+  });
+  $('#editor').addEventListener('submit', e => e.preventDefault());
+
+  /* ---------- Editor: voci ---------- */
+  function rowFor(id) { return quote.righe[id] || { on: false, qta: 1, prezzo: listino[id] ?? 0, f: ITEM[id].f === 'var' ? 'anno' : ITEM[id].f }; }
+  function freqSelect(val, enabled) {
+    if (!enabled) return `<span class="fixed-f">${FREQ[val]}</span>`;
+    return `<select data-field="f" aria-label="Frequenza">${Object.entries(FREQ).map(([k, l]) => `<option value="${k}" ${k === val ? 'selected' : ''}>${l}</option>`).join('')}</select>`;
+  }
+  function itemHTML(id, r, voce, dettaglio, custom, fEditable) {
+    return `<div class="item ${r.on ? 'on' : ''}" data-id="${esc(id)}" ${custom ? 'data-custom' : ''}>
+      <input type="checkbox" id="chk-${esc(id)}" data-field="on" ${r.on ? 'checked' : ''}>
+      <label for="chk-${esc(id)}"><span class="name">${esc(voce)}</span><span class="desc"> — ${esc(dettaglio)}</span></label>
+      ${custom ? `<div class="nums" style="grid-template-columns:1fr 1fr"><input data-field="voce" value="${esc(voce)}" placeholder="Voce" aria-label="Nome voce"><input data-field="dettaglio" value="${esc(dettaglio)}" placeholder="Dettaglio" aria-label="Dettaglio voce"></div>` : ''}
+      <div class="nums">
+        <input type="number" min="0" step="1" data-field="qta" value="${esc(r.qta)}" aria-label="Quantità" title="Quantità">
+        <input type="number" min="0" step="1" data-field="prezzo" value="${esc(r.prezzo)}" aria-label="Prezzo unitario in euro" title="Prezzo unitario €" placeholder="Prezzo €">
+        ${freqSelect(r.f, fEditable)}
+      </div>
+      ${custom ? '<button type="button" class="del" data-del>Elimina voce</button>' : ''}
+    </div>`;
+  }
+  function renderCatalog() {
+    const wrap = $('#catalog');
+    wrap.innerHTML = CATALOG.map(grp => {
+      const base = grp.items.map(([id]) => itemHTML(id, rowFor(id), ITEM[id].voce, ITEM[id].dettaglio, false, ITEM[id].f === 'var')).join('');
+      const custom = quote.custom.filter(c => c.g === grp.g).map(c => itemHTML(c.id, c, c.voce, c.dettaglio, true, true)).join('');
+      return `<div class="group-title">${esc(grp.g)}</div>${base}${custom}<button type="button" class="btn btn-plain add-custom" data-add="${esc(grp.g)}" style="margin-top:6px">+ Voce personalizzata</button>`;
+    }).join('');
+  }
+  $('#catalog').addEventListener('input', e => handleItem(e));
+  $('#catalog').addEventListener('change', e => { if (e.target.dataset.field === 'on' || e.target.tagName === 'SELECT') handleItem(e); });
+  function handleItem(e) {
+    const el = e.target; const field = el.dataset.field; if (!field) return;
+    const box = el.closest('.item'); const id = box.dataset.id;
+    let r;
+    if (box.hasAttribute('data-custom')) r = quote.custom.find(c => c.id === id);
+    else r = quote.righe[id] = quote.righe[id] || rowFor(id);
+    if (!r) return;
+    if (field === 'on') { r.on = el.checked; box.classList.toggle('on', r.on); if (r.on && !box.hasAttribute('data-custom') && !r.prezzo && listino[id]) { r.prezzo = listino[id]; box.querySelector('[data-field=prezzo]').value = r.prezzo; } }
+    else if (field === 'qta' || field === 'prezzo') r[field] = num(el.value);
+    else r[field] = el.value;
+    markDirty(); render();
+  }
+  $('#catalog').addEventListener('click', e => {
+    const add = e.target.closest('[data-add]');
+    if (add) {
+      quote.custom.push({ id: 'c' + Date.now().toString(36), g: add.dataset.add, sec: CATALOG.find(c => c.g === add.dataset.add).sec, voce: 'Nuova voce', dettaglio: '', qta: 1, prezzo: 0, f: 'una', on: true });
+      markDirty(); renderCatalog(); render();
+      const items = $('#catalog').querySelectorAll('[data-custom] [data-field=voce]'); items[items.length - 1]?.select();
+    }
+    const del = e.target.closest('[data-del]');
+    if (del) { const id = del.closest('.item').dataset.id; quote.custom = quote.custom.filter(c => c.id !== id); markDirty(); renderCatalog(); render(); }
+  });
+
+  /* ---------- Calcoli ---------- */
+  function selectedRows() {
+    const rows = [];
+    CATALOG.forEach(grp => {
+      grp.items.forEach(([id]) => { const r = quote.righe[id]; if (r && r.on) rows.push({ ...ITEM[id], ...r, f: ITEM[id].f === 'var' ? r.f : ITEM[id].f }); });
+      quote.custom.filter(c => c.g === grp.g && c.on).forEach(c => rows.push({ ...c }));
+    });
+    return rows.map(r => ({ ...r, qta: num(r.qta), prezzo: num(r.prezzo), tot: num(r.qta) * num(r.prezzo) }));
+  }
+  function totals(rows) {
+    const once = rows.filter(r => r.f === 'una');
+    const pagine = once.filter(r => r.sec === 'pagine').reduce((s, r) => s + r.tot, 0);
+    const servizi = once.filter(r => r.sec !== 'pagine').reduce((s, r) => s + r.tot, 0);
+    const sconto = Math.min(num(quote.sconto), pagine + servizi);
+    const imponibile = pagine + servizi - sconto;
+    const iva = imponibile * num(quote.iva) / 100;
+    const rec = rows.filter(r => r.f !== 'una');
+    const annuo = rec.reduce((s, r) => s + (r.f === 'mese' ? r.tot * 12 : r.tot), 0);
+    return { pagine, servizi, sconto, imponibile, iva, totale: imponibile + iva, rec, annuo };
+  }
+
+  /* ---------- Anteprima del preventivo ---------- */
+  function quoteHTML() {
+    const rows = selectedRows(); const t = totals(rows); const q = quote; const c = q.cliente; const o = q.oggetto;
+    let n = 0; const H = title => `<h2><i>${++n}</i>${esc(title)}</h2>`;
+    const studioLines = [studio.indirizzo, studio.piva && 'P.IVA ' + studio.piva, [studio.email, studio.telefono].filter(Boolean).join(' · '), studio.sito].filter(Boolean);
+    const cliLines = [c.indirizzo, c.piva && 'P.IVA / C.F. ' + c.piva, c.referente && 'Referente: ' + c.referente, [c.email, c.telefono].filter(Boolean).join(' · ')].filter(Boolean);
+
+    const ogg = [['Tipo di progetto', o.tipo + (o.tipo !== 'Nuovo sito' && o.sitoAttuale ? ` (${o.sitoAttuale})` : '')], ['Attività', o.attivita], ['Obiettivo principale', o.obiettivo], ['Pubblico', o.pubblico], ['Lingue', o.lingue], ['Riferimenti e materiali', o.riferimenti]].filter(([, v]) => String(v || '').trim());
+
+    const table = (list, showFreq) => `<div class="q-scroll"><table class="items"><thead><tr><th>Voce</th>${showFreq ? '<th class="w-f">Frequenza</th>' : ''}<th class="n w-q">Q.tà</th><th class="n w-p">Prezzo</th><th class="n w-p">Totale</th></tr></thead><tbody>${list.map(r => `<tr><td><b>${esc(r.voce)}</b>${r.dettaglio ? `<span class="d">${esc(r.dettaglio)}</span>` : ''}</td>${showFreq ? `<td>${FREQ[r.f]}</td>` : ''}<td class="n">${r.qta}</td><td class="n">${money(r.prezzo)}</td><td class="n">${money(r.tot)}</td></tr>`).join('')}</tbody></table></div>`;
+
+    const byGroup = sec => CATALOG.filter(g => g.sec === sec).map(g => ({ g: g.g, list: rows.filter(r => r.g === g.g && r.f === 'una') })).filter(x => x.list.length);
+    const pagGroups = byGroup('pagine'); const serGroups = byGroup('servizi');
+
+    let html = `<div class="q"><div class="q-head"><img src="${LOGO}" alt="TTS." width="320" height="120"><div class="q-title"><b>Preventivo n. ${esc(q.numero || '—')}</b><span>${fmtDate(q.data)} · valido fino al ${fmtDate(addDays(q.data, q.validita))}</span></div></div><div class="q-body">`;
+
+    html += `<section><div class="parties"><div><div class="lab">Da</div><b>${esc(studio.nome || 'Studio TTS')}</b><div>${studioLines.map(esc).join('<br>')}</div><div class="small">Referente: ${esc(q.referente)}</div></div><div><div class="lab">Per</div><b>${esc(c.nome) || '<span class="empty">Nome del cliente</span>'}</b><div>${cliLines.map(esc).join('<br>')}</div></div></div></section>`;
+
+    if (ogg.length) html += `<section>${H('Oggetto')}<p style="margin:0 0 6px">Progettazione e sviluppo del sito web${c.nome ? ' di <b>' + esc(c.nome) + '</b>' : ''}.</p><table class="kv"><tbody>${ogg.map(([k, v]) => `<tr><td>${k}</td><td>${esc(v)}</td></tr>`).join('')}</tbody></table></section>`;
+
+    if (pagGroups.length) html += `<section>${H('Struttura del sito')}${pagGroups.map(x => (pagGroups.length > 1 ? `<h3>${esc(x.g)}</h3>` : '') + table(x.list)).join('')}</section>`;
+    if (serGroups.length) html += `<section>${H('Design, funzionalità e servizi')}${serGroups.map(x => (serGroups.length > 1 ? `<h3>${esc(x.g)}</h3>` : '') + table(x.list)).join('')}</section>`;
+    if (t.rec.length) html += `<section>${H('Servizi ricorrenti')}${table(t.rec, true)}<p class="small" style="margin:6px 0 0">Importi IVA esclusa. Decorrono dalla pubblicazione e si rinnovano salvo disdetta scritta ${num(q.disdetta)} giorni prima della scadenza. Totale annuo: <b>${money(t.annuo)}</b> + IVA.</p></section>`;
+
+    if (!rows.length) html += `<p class="empty">Spunta le voci nell'editor: compariranno qui con i totali.</p>`;
+
+    if (t.pagine + t.servizi > 0 || rows.some(r => r.f === 'una')) {
+      html += `<section>${H('Riepilogo economico')}<table class="tot"><tbody>
+        ${t.pagine ? `<tr><td>Pagine</td><td class="n">${money(t.pagine)}</td></tr>` : ''}
+        ${t.servizi ? `<tr><td>Design, funzionalità e servizi</td><td class="n">${money(t.servizi)}</td></tr>` : ''}
+        ${t.sconto ? `<tr><td>Sconto${q.scontoMotivo ? ' — ' + esc(q.scontoMotivo) : ''}</td><td class="n">− ${money(t.sconto)}</td></tr>` : ''}
+        <tr><td><b>Imponibile</b></td><td class="n"><b>${money(t.imponibile)}</b></td></tr>
+        <tr><td>IVA ${num(q.iva)}%</td><td class="n">${money(t.iva)}</td></tr>
+        <tr class="grand"><td>Totale una tantum</td><td class="n">${money(t.totale)}</td></tr>
+      </tbody></table></section>`;
+    }
+
+    const fasi = ['Ascolto — incontro, obiettivi, raccolta materiali', 'Progettazione — struttura delle pagine e proposta grafica', 'Realizzazione — sviluppo del sito e inserimento contenuti', 'Pubblicazione — verifiche finali e messa online'];
+    const pays = [['Acconto', 'alla firma del preventivo'], ['Secondo acconto', "all'approvazione della proposta grafica"], ['Saldo', 'alla pubblicazione del sito']];
+    html += `<section>${H('Tempi e pagamenti')}<p style="margin:0 0 6px">Durata complessiva indicativa: <b>${num(q.settimane)} settimane</b> dalla firma e dalla ricezione dei materiali.</p>
+      <div class="q-scroll"><table><thead><tr><th>Fase</th><th class="n">Durata indicativa</th></tr></thead><tbody>${fasi.map((f, i) => `<tr><td>${i + 1}. ${esc(f)}</td><td class="n">${num(q.fasi[i])} giorni</td></tr>`).join('')}</tbody></table></div>
+      <p class="small" style="margin:6px 0 10px">Inclusi ${num(q.revisioniGrafica)} giri di revisione sulla proposta grafica e ${num(q.revisioniSito)} sul sito completo; ulteriori modifiche sono quotate a parte.</p>
+      <div class="q-scroll"><table><thead><tr><th>Pagamento</th><th>Quando</th><th class="n">Quota</th><th class="n">Importo</th></tr></thead><tbody>${pays.map((p, i) => num(q.pagamenti[i]) ? `<tr><td>${p[0]}</td><td>${p[1]}</td><td class="n">${num(q.pagamenti[i])}%</td><td class="n">${money(t.totale * num(q.pagamenti[i]) / 100)}</td></tr>` : '').join('')}</tbody></table></div>
+      <p class="small" style="margin:6px 0 0">Modalità: bonifico${studio.iban ? ' su IBAN ' + esc(studio.iban) : ''}, entro ${num(q.terminiPagamento)} giorni dalla fattura.</p></section>`;
+
+    const inc = lines(q.testi.incluso), exc = lines(q.testi.escluso), cli = lines(q.testi.cliente);
+    if (inc.length || exc.length || cli.length) html += `<section>${H('Cosa è incluso e cosa no')}<div class="cols3">${[['Sempre incluso', inc], ['Non incluso, salvo voce indicata', exc], ['A carico del cliente', cli]].filter(([, l]) => l.length).map(([h, l]) => `<div><h3 style="margin-top:0">${h}</h3><ul>${l.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`).join('')}</div></section>`;
+
+    const cond = [`Il preventivo è valido fino al ${fmtDate(addDays(q.data, q.validita))}.`, ...lines(q.testi.condizioni)];
+    html += `<section>${H('Condizioni e accettazione')}<ol>${cond.map(x => `<li>${esc(x)}</li>`).join('')}</ol>
+      ${q.note.trim() ? `<p style="margin:10px 0 0"><b>Note.</b> ${esc(q.note)}</p>` : ''}
+      <p style="margin:12px 0 4px">Per accettare, firmare e restituire questo documento.</p>
+      <div class="sign"><div>${esc(studio.nome || 'Studio TTS')}<br>Data e firma</div><div>${esc(c.nome || 'Il cliente')}<br>Data e firma</div></div></section>`;
+
+    html += `</div></div>`;
+    return html;
+  }
+
+  function render() {
+    $('#sheet').innerHTML = quoteHTML();
+    const rows = selectedRows(); const t = totals(rows);
+    $('#sum-items').textContent = rows.length ? `${rows.length} voci · ${money(t.totale)}` : 'nessuna voce';
+    $('#sum-client').textContent = quote.cliente.nome || '';
+    const s = quote.pagamenti.reduce((a, b) => a + num(b), 0);
+    const w = $('#pay-warn'); w.hidden = s === 100; w.textContent = `Le quote di pagamento sommano a ${s}%: devono fare 100%.`;
+  }
+
+  function loadQuote(q, id) {
+    quote = { ...blankQuote(), ...structuredClone(q) };
+    quote.testi = { ...DEFAULT_TEXTS, ...(q.testi || {}) };
+    quote.cliente = { ...blankQuote().cliente, ...(q.cliente || {}) };
+    quote.oggetto = { ...blankQuote().oggetto, ...(q.oggetto || {}) };
+    quoteId = id || null; dirty = false;
+    fillFields(); renderCatalog(); render();
+    $('#quote-picker').value = id || '';
+    setStatus(id ? 'Preventivo aperto' : '', '');
+  }
+
+  function nextNumber() {
+    const y = new Date().getFullYear();
+    const max = quotes.map(x => String(x.data.numero || '')).filter(n => n.startsWith(y + '-')).map(n => parseInt(n.split('-')[1], 10)).filter(Number.isFinite).reduce((a, b) => Math.max(a, b), 0);
+    return `${y}-${String(max + 1).padStart(3, '0')}`;
+  }
+
+  /* ---------- Archivio locale (localStorage di questo browser) ---------- */
+  const KEY = { quotes: 'tts-preventivi', listino: 'tts-listino', studio: 'tts-studio', draft: 'tts-preventivo-bozza' };
+  const readJSON = (k, fallback) => { try { const v = JSON.parse(localStorage.getItem(k) || 'null'); return v ?? fallback; } catch { return fallback; } };
+  const writeJSON = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } };
+  const persistQuotes = () => writeJSON(KEY.quotes, quotes);
+
+  /* ---------- Pulsanti ---------- */
+  $('#btn-new').addEventListener('click', () => {
+    if (dirty && !confirm('Ci sono modifiche non salvate. Iniziare comunque un nuovo preventivo?')) return;
+    loadQuote(blankQuote(nextNumber()), null); setStatus('Nuovo preventivo', ''); markDirty();
+  });
+  $('#btn-dup').addEventListener('click', () => { const copy = structuredClone(quote); copy.numero = nextNumber(); copy.stato = 'Bozza'; copy.data = today(); loadQuote(copy, null); setStatus('Copia creata: ricorda di salvarla', 'dirty'); dirty = true; });
+  $('#btn-reset-text').addEventListener('click', () => { quote.testi = { ...DEFAULT_TEXTS }; fillFields(); markDirty(); render(); });
+
+  $('#btn-save').addEventListener('click', () => {
+    if (!quoteId) quoteId = 'q' + Date.now().toString(36);
+    const entry = { id: quoteId, data: { ...structuredClone(quote), updatedAt: new Date().toISOString() } };
+    quotes = [entry, ...quotes.filter(x => x.id !== quoteId)];
+    if (!persistQuotes()) { setStatus('Salvataggio non riuscito: il browser blocca la memoria locale', 'dirty'); return; }
+    dirty = false; writeJSON(KEY.draft, null); renderPicker(); setStatus('Salvato', 'saved');
+  });
+
+  $('#btn-delete').addEventListener('click', () => {
+    if (!quoteId) { setStatus('Questo preventivo non è ancora salvato', ''); return; }
+    if (!confirm(`Eliminare il preventivo ${quote.numero}? L'operazione non si può annullare.`)) return;
+    quotes = quotes.filter(x => x.id !== quoteId); persistQuotes();
+    loadQuote(blankQuote(nextNumber()), null); renderPicker(); setStatus('Preventivo eliminato', '');
+  });
+
+  $('#quote-picker').addEventListener('change', e => {
+    const id = e.target.value; if (!id) return;
+    const found = quotes.find(x => x.id === id); if (!found) return;
+    if (dirty && !confirm('Ci sono modifiche non salvate. Aprire comunque l\'altro preventivo?')) { e.target.value = quoteId || ''; return; }
+    loadQuote(found.data, id);
+  });
+
+  $('#btn-listino').addEventListener('click', () => {
+    Object.entries(quote.righe).forEach(([id, r]) => { if (r.on && num(r.prezzo) > 0) listino[id] = num(r.prezzo); });
+    const ok = writeJSON(KEY.listino, listino);
+    setStatus(ok ? 'Listino aggiornato' : 'Listino non salvato', ok ? 'saved' : 'dirty');
+  });
+
+  $('#btn-studio').addEventListener('click', () => {
+    const ok = writeJSON(KEY.studio, studio);
+    setStatus(ok ? 'Dati dello studio salvati' : 'Dati dello studio non salvati', ok ? 'saved' : 'dirty');
+  });
+
+  // Stampa: il foglio del preventivo è l'unica cosa stampata (vedi @media print)
+  $('#btn-print').addEventListener('click', () => {
+    const prev = document.title;
+    document.title = `Preventivo ${quote.numero}${quote.cliente.nome ? ' - ' + quote.cliente.nome : ''}`; // nome proposto per il PDF
+    window.print();
+    setTimeout(() => { document.title = prev; }, 500);
+  });
+
+  /* ---------- Backup: esporta e importa tutto l'archivio ---------- */
+  function download(filename, text, type) {
+    const url = URL.createObjectURL(new Blob([text], { type }));
+    const a = document.createElement('a'); a.href = url; a.download = filename;
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+  $('#btn-backup').addEventListener('click', () => {
+    const payload = { app: 'preventivi-tts', versione: 1, esportato: new Date().toISOString(), preventivi: quotes, listino, studio };
+    download(`Backup-preventivi-TTS-${today()}.json`, JSON.stringify(payload, null, 2), 'application/json');
+    setStatus('Backup scaricato', 'saved');
+  });
+  $('#btn-restore').addEventListener('click', () => $('#restore-file').click());
+  $('#restore-file').addEventListener('change', async e => {
+    const file = e.target.files[0]; e.target.value = ''; if (!file) return;
+    try {
+      const data = JSON.parse(await file.text());
+      if (data.app !== 'preventivi-tts' || !Array.isArray(data.preventivi)) throw new Error('formato');
+      // Unisce: i preventivi del backup sostituiscono quelli con lo stesso id, gli altri restano
+      const byId = new Map(quotes.map(x => [x.id, x]));
+      data.preventivi.forEach(x => { if (x && x.id && x.data) byId.set(x.id, x); });
+      quotes = [...byId.values()].sort((a, b) => String(b.data.updatedAt || '').localeCompare(String(a.data.updatedAt || '')));
+      if (data.listino) listino = { ...listino, ...data.listino };
+      if (data.studio) studio = { ...studio, ...data.studio };
+      persistQuotes(); writeJSON(KEY.listino, listino); writeJSON(KEY.studio, studio);
+      fillFields(); renderPicker(); render();
+      setStatus(`Backup importato: ${data.preventivi.length} preventivi`, 'saved');
+    } catch {
+      setStatus('File non valido: scegli un backup esportato da questo strumento', 'dirty');
+    }
+  });
+
+  window.addEventListener('beforeunload', e => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+
+  /* ---------- Avvio ---------- */
+  const picker = $('#quote-picker');
+  function renderPicker() {
+    picker.innerHTML = `<option value="">${quotes.length ? 'Preventivi salvati (' + quotes.length + ')' : 'Nessun preventivo salvato'}</option>` +
+      quotes.map(x => `<option value="${esc(x.id)}">${esc(x.data.numero || '—')} · ${esc(x.data.cliente?.nome || 'Senza cliente')} · ${esc(x.data.stato || '')}</option>`).join('');
+    picker.value = quoteId || '';
+  }
+
+  quotes = readJSON(KEY.quotes, []);
+  listino = readJSON(KEY.listino, {});
+  studio = { ...studio, ...readJSON(KEY.studio, {}) };
+  const draft = readJSON(KEY.draft, null);
+  if (draft && draft.quote) { loadQuote(draft.quote, draft.quoteId); dirty = true; setStatus('Bozza non salvata ripresa', 'dirty'); }
+  else if (quotes.length) loadQuote(blankQuote(nextNumber()), null);
+  else loadQuote(quote, null); // primo avvio: esempio
+  renderPicker();
+  try { localStorage.setItem('tts-test', '1'); localStorage.removeItem('tts-test'); }
+  catch { setStatus('Attenzione: questo browser non permette di salvare. Usa Chrome, Edge o Firefox.', 'dirty'); }
+})();
+</script>
+</body>
+</html>
